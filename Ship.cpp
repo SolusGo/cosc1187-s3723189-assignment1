@@ -5,8 +5,6 @@ Ship::Ship()
 {
 	pos = new coord();
 	dir = new coord();
-	this->maxX = 500.00;
-	this->maxY = 500.00;
 	this->pos->x = 500.00;
 	this->pos->y = 500.00;
 	this->dir->x = 500.00;
@@ -33,18 +31,13 @@ void Ship::setPosition(int x, int y)
 	this->pos->y = y;
 }
 
-void Ship::moveDown()
-{
-	this->pos->y = determinePosition(this->pos->y, -1.0);
-	//printf("%f, %f \n", this->pos->x, this->pos->y);
-}
 
-void Ship::moveUp()
+void Ship::moveUp(double time)
 {
 	//this->pos->y = determinePosition(this->pos->y, 1.0);
-	determinePosition();
+	determinePosition(time);
 
-	printf("%f, %f : %f, %f \n", this->pos->x, this->pos->y, this->dir->x, this->dir->y);
+	
 }
 
 void Ship::moveLeft()
@@ -72,12 +65,6 @@ void Ship::moveRight()
 
 }
 
-void Ship::setMaxPosition(int x, int y)
-{
-	this->maxX = x;
-	this->maxY = y;
-
-}
 
 void Ship::setTime(float number)
 {
@@ -85,18 +72,22 @@ void Ship::setTime(float number)
 
 }
 
-double Ship::determinePosition(double old, double dir)
-{
-	double newPos = old + (dir * this->velocity * this->elapsed_time);
-	return newPos;
-}
+//double Ship::determinePosition(double old, double dir)
+//{
+//	double newPos = old + (dir * this->velocity * this->elapsed_time);
+//	return newPos;
+//}
 
-void Ship::determinePosition()
+void Ship::determinePosition(double time)
 {
 	double magnitude = sqrt((pow(this->dir->x - this->pos->x, 2)) + (pow(this->dir->y - this->pos->y, 2)));
 	double angle = (this->rotation + 90) * 3.14 / 180.0;
-	double newYpos = this->pos->y + (sin(angle) * this->velocity * this->elapsed_time);
-	double newxpos = this->pos->x + (cos(angle) * this->velocity * this->elapsed_time);
+	double newYpos = this->pos->y + (sin(angle) * this->velocity * time);
+	double newxpos = this->pos->x + (cos(angle) * this->velocity * time);
+
+	
+	
+
 	this->pos->y = newYpos;
 	this->pos->x = newxpos;
 }

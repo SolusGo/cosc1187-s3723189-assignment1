@@ -16,27 +16,21 @@ public:
 	
 	void moveLeft();
 	void moveRight();
-	void moveUp();
-	void moveDown();
+	void moveUp(double time);
 	void setPosition(int x, int y);
-	void setMaxPosition(int x, int y);
 	void setTime(float number);
 	double getrotation();
 	void determineDirection(double newAngle);
 private:
 
 	// Coords 
-	int maxX;
-	int maxY;
 	double rotation;
 	coord *pos;
 	coord *dir;
 	double velocity;
 	double elapsed_time;
-	double determinePosition(double old, double dir);
-	void determinePosition();
-	void angleLeft();
-	void angleRight();
+	/*double determinePosition(double old, double dir);*/
+	void determinePosition(double time);
 };
 
 

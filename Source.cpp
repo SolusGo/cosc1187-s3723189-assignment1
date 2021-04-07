@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <iostream>
 #include "Ship.h"
+#include "GameState.h"
 
 #if _WIN32
 #   include <Windows.h>
@@ -22,7 +23,7 @@ double g_screen_height = 0.0;
 double prev_time = 0.0;
 double current_time = 0.0;
 Ship* ship = new Ship();
-
+GameState *game;
 
 void display(void)
 {
@@ -53,11 +54,8 @@ void keyboard(unsigned char key, int x, int y)
 	case 'd':
 		ship->moveRight();
 		break;
-	case 's':
-		ship->moveDown();
-		break;
 	case 'w':
-		ship->moveUp();
+		//ship->moveUp(0);
 		break;
 	case 'q':
 		exit(EXIT_SUCCESS);
@@ -67,13 +65,18 @@ void keyboard(unsigned char key, int x, int y)
 	}
 }
 
+void key_presswrapper(unsigned char key, int x, int y)
+{
+	game->keyboard(key, x, y);
+}
+
 void on_reshape(int w, int h)
 {
 	fprintf(stderr, "on_reshape(%d, %d)\n", w, h);
 	glViewport(0, 0, w, h);
 	g_screen_width = 1.0 * w;
 	g_screen_height = 1.0* h;
-	ship->setMaxPosition(w,h);
+	game->setMax(g_screen_width, g_screen_height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glOrtho(0.0, w, 0.0, h, -1.0, 1.0);
@@ -94,8 +97,10 @@ void draw_ship()
 	double middlebottom = (20.0 / 115.0) * height;
 	glPushMatrix();
 	glColor3f(255, 255, 255);
-	glTranslatef(ship->getx(), ship->gety(), 0.0);
-	glRotatef(ship->getrotation(), 0, 0, 1);
+
+	//glTranslatef(ship->getx(), ship->gety(), 0.0);
+	glTranslatef(game->getShipX(), game->getShipY(), 0.0);
+	glRotatef(game->getShipRot(), 0, 0, 1);
 	//glScalef(20, 20, 0.0);
 	glBegin(GL_LINE_LOOP);
 	//printf("width: %d, length: %d, x: %d, y: %d \n", width, height, ship->getx(), ship->gety());
@@ -129,22 +134,17 @@ void draw_ship()
 	
 }
 
-void draw_square()
+void drawArena()
 {
-	glColor3f(255, 255, 255);
-	glBegin(GL_LINE_LOOP);
-	glVertex2f(2460, 1340);
-	glVertex2f(2560, 1340);
-	glVertex2f(2560, 1440);
-	glVertex2f(2460, 1440);
-	glEnd();
+
 }
 
 void on_idle()
 {
 	current_time = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
 	double dt = current_time - prev_time;
-	ship->setTime(dt);
+	//ship->setTime(dt);
+	game->setTime(dt);
 	prev_time = current_time;
 	glutPostRedisplay();
 }
@@ -178,17 +178,20 @@ void init()
 
 int main(int argc, char** argv)
 {
+	// initialise GameState
+	game = new GameState();
+
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-	glutCreateWindow("Tutorial 1");
+	glutCreateWindow("Assignment 1");
 	//glutFullScreen();
 	glutReshapeFunc(on_reshape);
 	init();
 
 	glutDisplayFunc(on_display);
 	glutIdleFunc(on_idle);
-	glutKeyboardFunc(keyboard);
-	ship->setTime(glutGet(GLUT_ELAPSED_TIME));
+	glutKeyboardFunc(key_presswrapper);
+	game->setTime(glutGet(GLUT_ELAPSED_TIME));
 	prev_time = glutGet(GLUT_ELAPSED_TIME);
 	glutMainLoop();
 
