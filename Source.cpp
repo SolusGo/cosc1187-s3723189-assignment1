@@ -102,7 +102,7 @@ void draw_ship()
 	//Bottom left point of ship
 	glVertex2f(0.0 - width / 2, 0.0 - height / 2);
 
-	 //Bottom middle point
+	//Bottom middle point
 
 	glVertex2f(0.0, 0.0 - middlebottom);
 
@@ -181,7 +181,7 @@ int main(int argc, char** argv)
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutCreateWindow("Tutorial 1");
-	glutFullScreen();
+	//glutFullScreen();
 	glutReshapeFunc(on_reshape);
 	init();
 

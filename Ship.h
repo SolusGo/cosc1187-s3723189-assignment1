@@ -5,6 +5,7 @@
 
 class Ship {
 	// Constructor/Desctructor
+
 public:
 
 	Ship();
@@ -21,6 +22,7 @@ public:
 	void setMaxPosition(int x, int y);
 	void setTime(float number);
 	double getrotation();
+	void determineDirection(double newAngle);
 private:
 
 	// Coords 
@@ -32,7 +34,9 @@ private:
 	double velocity;
 	double elapsed_time;
 	double determinePosition(double old, double dir);
-
+	void determinePosition();
+	void angleLeft();
+	void angleRight();
 };
 
 
