@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
+#include "Ship.h"
 
 #if _WIN32
 #   include <Windows.h>
@@ -16,8 +17,13 @@
 #endif
 
 
-int g_screen_width = 0;
-int g_screen_height = 0;
+double g_screen_width = 0.0;
+double g_screen_height = 0.0;
+double prev_time = 0.0;
+double current_time = 0.0;
+Ship* ship = new Ship();
+
+
 void display(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -40,6 +46,19 @@ void keyboard(unsigned char key, int x, int y)
 	switch (key)
 	{
 	case 27:
+
+	case 'a':
+		ship->moveLeft();
+		break;
+	case 'd':
+		ship->moveRight();
+		break;
+	case 's':
+		ship->moveDown();
+		break;
+	case 'w':
+		ship->moveUp();
+		break;
 	case 'q':
 		exit(EXIT_SUCCESS);
 		break;
@@ -52,31 +71,58 @@ void on_reshape(int w, int h)
 {
 	fprintf(stderr, "on_reshape(%d, %d)\n", w, h);
 	glViewport(0, 0, w, h);
-	g_screen_width = w;
-	g_screen_height = h;
+	g_screen_width = 1.0 * w;
+	g_screen_height = 1.0* h;
+	ship->setMaxPosition(w,h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glOrtho(0.0, w, 0.0, h, -1.0, 1.0);
 }
 
-void render_frame()
-{
-	int smin = 100;
-	int smax = 1000;
-	int rsize = smin + (rand() % (smax - smin));
-	int rposx = rand() % ((g_screen_width - rsize));
-	int rposy = rand() % (g_screen_height - rsize);
-	float rcolr = (float)rand() / RAND_MAX;
-	float rcolg = (float)rand() / RAND_MAX;
-	float rcolb = (float)rand() / RAND_MAX; 
 
-	glColor3f(rcolr, rcolg, rcolb);
+
+void draw_ship()
+{
+	double scaledx = 100.0 / g_screen_width;
+	double scaledy = 125.0 / g_screen_height;
+	double height = scaledy * g_screen_height;
+	double width = scaledx * g_screen_width;
+
+	
+	
+	//Calculates the y coordinate for the bottom  middle segment of the shit 
+	double middlebottom = (20.0 / 115.0) * height;
+	glColor3f(255, 255, 255);
 	glBegin(GL_LINE_LOOP);
-	glVertex2f(rposx, rposy);
-	glVertex2f(rposx + rsize, rposy);
-	glVertex2f(rposx + rsize, rposy + rsize);
-	glVertex2f(rposx, rposy + rsize);
+	//printf("width: %d, length: %d, x: %d, y: %d \n", width, height, ship->getx(), ship->gety());
+	//Bottom left point of ship
+	glVertex2f(ship->getx() - width / 2, ship->gety() - height / 2);
+
+	// Bottom middle point
+
+	glVertex2f(ship->getx(), ship->gety() - middlebottom);
+
+	//Top point 
+
+	glVertex2f(ship->getx(), ship->gety() + height / 2);
+	
 	glEnd();
+
+	// Draw next triangle 
+	glBegin(GL_LINE_LOOP);
+
+	glVertex2f(ship->getx(), ship->gety() - middlebottom);
+
+	glVertex2f(ship->getx() + width / 2, ship->gety() - height / 2);
+
+	glVertex2f(ship->getx(), ship->gety() + height / 2);
+	//Top point 
+	printf("y: %d, y + height: %d \n", ship->gety(), ship->getx() + height);
+	
+
+	glEnd();
+
+	
 }
 
 void draw_square()
@@ -92,17 +138,23 @@ void draw_square()
 
 void on_idle()
 {
+	current_time = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
+	double dt = current_time - prev_time;
+	ship->setTime(dt);
+	prev_time = current_time;
 	glutPostRedisplay();
 }
 
 void on_display()
 {
-	std::cout << "this is being called" << std::endl;
+	
+	//printf("current x: %d, current y: %d \n", ship->getx(), ship->gety());
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	render_frame();
+	//render_frame();
+	draw_ship();
 
 	int err;
 	while ((err = glGetError()) != GL_NO_ERROR)
@@ -125,14 +177,15 @@ int main(int argc, char** argv)
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutCreateWindow("Tutorial 1");
-	glutFullScreen();
+	//glutFullScreen();
 	glutReshapeFunc(on_reshape);
-	std::cout << "hello world! \n";
 	init();
 
 	glutDisplayFunc(on_display);
 	glutIdleFunc(on_idle);
 	glutKeyboardFunc(keyboard);
+	ship->setTime(glutGet(GLUT_ELAPSED_TIME));
+	prev_time = glutGet(GLUT_ELAPSED_TIME);
 	glutMainLoop();
 
 	return EXIT_SUCCESS;
