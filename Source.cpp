@@ -123,7 +123,6 @@ void draw_ship()
 	//Top point 
 	//printf("y: %d, y + height: %d \n", ship->gety(), ship->getx() + height);
 	
-
 	glEnd();
 
 	glPopMatrix();
