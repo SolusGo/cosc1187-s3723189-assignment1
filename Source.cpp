@@ -92,36 +92,41 @@ void draw_ship()
 	
 	//Calculates the y coordinate for the bottom  middle segment of the shit 
 	double middlebottom = (20.0 / 115.0) * height;
+	glPushMatrix();
 	glColor3f(255, 255, 255);
+	glTranslatef(ship->getx(), ship->gety(), 0.0);
+	glRotatef(ship->getrotation(), 0, 0, 1);
+	//glScalef(20, 20, 0.0);
 	glBegin(GL_LINE_LOOP);
 	//printf("width: %d, length: %d, x: %d, y: %d \n", width, height, ship->getx(), ship->gety());
 	//Bottom left point of ship
-	glVertex2f(ship->getx() - width / 2, ship->gety() - height / 2);
+	glVertex2f(0.0 - width / 2, 0.0 - height / 2);
 
-	// Bottom middle point
+	 //Bottom middle point
 
-	glVertex2f(ship->getx(), ship->gety() - middlebottom);
+	glVertex2f(0.0, 0.0 - middlebottom);
 
 	//Top point 
 
-	glVertex2f(ship->getx(), ship->gety() + height / 2);
+	glVertex2f(0.0, 0.0 + height / 2);
 	
 	glEnd();
-
+	
 	// Draw next triangle 
 	glBegin(GL_LINE_LOOP);
 
-	glVertex2f(ship->getx(), ship->gety() - middlebottom);
+	glVertex2f(0.0, 0.0 - middlebottom);
 
-	glVertex2f(ship->getx() + width / 2, ship->gety() - height / 2);
+	glVertex2f(0.0 + width / 2, 0.0 - height / 2);
 
-	glVertex2f(ship->getx(), ship->gety() + height / 2);
+	glVertex2f(0.0, 0.0 + height / 2);
 	//Top point 
-	printf("y: %d, y + height: %d \n", ship->gety(), ship->getx() + height);
+	//printf("y: %d, y + height: %d \n", ship->gety(), ship->getx() + height);
 	
 
 	glEnd();
 
+	glPopMatrix();
 	
 }
 
@@ -177,7 +182,7 @@ int main(int argc, char** argv)
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutCreateWindow("Tutorial 1");
-	//glutFullScreen();
+	glutFullScreen();
 	glutReshapeFunc(on_reshape);
 	init();
 

@@ -20,11 +20,13 @@ public:
 	void setPosition(int x, int y);
 	void setMaxPosition(int x, int y);
 	void setTime(float number);
+	double getrotation();
 private:
 
 	// Coords 
 	int maxX;
 	int maxY;
+	double rotation;
 	coord *pos;
 	coord *dir;
 	double velocity;

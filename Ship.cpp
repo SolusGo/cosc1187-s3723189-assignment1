@@ -12,6 +12,7 @@ Ship::Ship()
 	this->dir->y = 501.00;
 	this->velocity = 500.0;
 	this->elapsed_time = 0.0;
+	this->rotation = 40.0;
 }
 
 double Ship::getx()
@@ -44,12 +45,14 @@ void Ship::moveUp()
 
 void Ship::moveLeft()
 {
-	this->pos->x = determinePosition(this->pos->x, -1.0);
+	//this->pos->x = determinePosition(this->pos->x, -1.0);
+	this->rotation += 1.0;
 }
 
 void Ship::moveRight()
 {
-	this->pos->x = determinePosition(this->pos->x, 1.0);
+	//this->pos->x = determinePosition(this->pos->x, 1.0);
+	this->rotation -= 1.0;
 }
 
 void Ship::setMaxPosition(int x, int y)
@@ -69,6 +72,11 @@ double Ship::determinePosition(double old, double dir)
 {
 	double newPos = old + (dir * this->velocity * this->elapsed_time);
 	return newPos;
+}
+
+double Ship::getrotation()
+{
+	return this->rotation;
 }
 
 // Calculate movement NewPos = Oldps + (Dir * Vel * dt) where Dir = 1 or -1
