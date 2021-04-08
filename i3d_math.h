@@ -7,7 +7,6 @@ struct coord
 };
 
 
-
 class i3d_math {
 public:
 	i3d_math();

@@ -21,6 +21,7 @@ public:
 	void setTime(float number);
 	double getrotation();
 	void determineDirection(double newAngle);
+	double getradius();
 private:
 
 	// Coords 
@@ -28,6 +29,7 @@ private:
 	coord *pos;
 	coord *dir;
 	double velocity;
+	double hitradius; 
 	double elapsed_time;
 	/*double determinePosition(double old, double dir);*/
 	void determinePosition(double time);

@@ -3,6 +3,7 @@
 #include <iostream>
 #include "Ship.h"
 #include "GameState.h"
+#include <math.h>
 
 #if _WIN32
 #   include <Windows.h>
@@ -87,7 +88,7 @@ void on_reshape(int w, int h)
 void draw_ship()
 {
 	double scaledx = 100.0 / g_screen_width;
-	double scaledy = 125.0 / g_screen_height;
+	double scaledy = 100.0 / g_screen_height;
 	double height = scaledy * g_screen_height;
 	double width = scaledx * g_screen_width;
 
@@ -113,7 +114,7 @@ void draw_ship()
 
 	//Top point 
 
-	glVertex2f(0.0, 0.0 + height / 2);
+	glVertex2f(0.0, 0.0 + height / 1.50);
 	
 	glEnd();
 	
@@ -124,7 +125,7 @@ void draw_ship()
 
 	glVertex2f(0.0 + width / 2, 0.0 - height / 2);
 
-	glVertex2f(0.0, 0.0 + height / 2);
+	glVertex2f(0.0, 0.0 + height / 1.50);
 	//Top point 
 	//printf("y: %d, y + height: %d \n", ship->gety(), ship->getx() + height);
 	
@@ -132,6 +133,21 @@ void draw_ship()
 
 	glPopMatrix();
 	
+}
+
+void drawShipHitbox()
+{
+	glColor3f(255, 255, 255);
+	glBegin(GL_LINE_LOOP);
+	for (int i = 0; i < 100; i++)
+	{
+		double theta = 2.0 * 3.1415926 * (i*1.0) / 100.0;
+		double x = game->getShipHitBox() * cos(theta);
+		double y = game->getShipHitBox() * sin(theta);
+		printf("%f, %f \n", x, y);
+		glVertex2f(x + game->getShipX(), y + game->getShipY());
+	}
+	glEnd();
 }
 
 void drawArena()
@@ -158,8 +174,9 @@ void on_display()
 	glLoadIdentity();
 
 	//render_frame();
+	drawShipHitbox();
 	draw_ship();
-
+	
 	int err;
 	while ((err = glGetError()) != GL_NO_ERROR)
 		printf("error: %s\n", gluErrorString(err));
@@ -184,7 +201,7 @@ int main(int argc, char** argv)
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutCreateWindow("Assignment 1");
-	//glutFullScreen();
+	glutFullScreen();
 	glutReshapeFunc(on_reshape);
 	init();
 

@@ -53,7 +53,12 @@ bool GameState::hasCollided()
 	
 	bool collided_x = ship->getx() >= this->max_X || ship->getx() <= this->min_X;
 	bool collided_y = ship->gety() >= this->max_X || ship->gety() <= this->min_Y;
-	if (collided_x || collided_y)
+
+	bool collided_max_x = inRadius(this->max_X, this->getShipY());
+	bool collided_min_x = inRadius(0 , this->getShipY());
+	bool collided_max_y = inRadius(this->getShipX(), this->max_Y);
+	bool collided_min_y = inRadius(this->getShipX(), 0);
+	if (collided_max_x || collided_min_x || collided_max_y|| collided_min_y)
 	{
 		return true;
 	}
@@ -96,4 +101,21 @@ void GameState::setTime(double time)
 double GameState::getShipRot()
 {
 	return this->ship->getrotation();
+}
+
+double GameState::getShipHitBox()
+{
+	return this->ship->getradius();
+}
+
+bool GameState::inRadius(double x, double y)
+{
+	double distance = sqrt(pow(x - this->getShipX(), 2) + pow(y - this->getShipY(), 2));
+
+	if (distance <= this->getShipHitBox())
+	{
+		return true;
+	}
+
+	return false;
 }
