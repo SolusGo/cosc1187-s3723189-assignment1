@@ -77,7 +77,7 @@ void on_reshape(int w, int h)
 	glViewport(0, 0, w, h);
 	g_screen_width = 1.0 * w;
 	g_screen_height = 1.0* h;
-	game->setMax(g_screen_width, g_screen_height);
+	game->setArena(g_screen_width, g_screen_height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glOrtho(0.0, w, 0.0, h, -1.0, 1.0);
@@ -144,7 +144,6 @@ void drawShipHitbox()
 		double theta = 2.0 * 3.1415926 * (i*1.0) / 100.0;
 		double x = game->getShipHitBox() * cos(theta);
 		double y = game->getShipHitBox() * sin(theta);
-		printf("%f, %f \n", x, y);
 		glVertex2f(x + game->getShipX(), y + game->getShipY());
 	}
 	glEnd();
@@ -152,7 +151,13 @@ void drawShipHitbox()
 
 void drawArena()
 {
-
+	glColor3f(255, 255, 255);
+	glBegin(GL_LINE_LOOP);
+	glVertex2f(game->getArenaCoords(MIN_X), game->getArenaCoords(MIN_Y));
+	glVertex2f(game->getArenaCoords(MAX_X), game->getArenaCoords(MIN_Y));
+	glVertex2f(game->getArenaCoords(MAX_X), game->getArenaCoords(MAX_Y));
+	glVertex2f(game->getArenaCoords(MIN_X), game->getArenaCoords(MAX_Y));
+	glEnd();
 }
 
 void on_idle()
@@ -176,7 +181,7 @@ void on_display()
 	//render_frame();
 	drawShipHitbox();
 	draw_ship();
-	
+	drawArena();
 	int err;
 	while ((err = glGetError()) != GL_NO_ERROR)
 		printf("error: %s\n", gluErrorString(err));
@@ -214,3 +219,5 @@ int main(int argc, char** argv)
 
 	return EXIT_SUCCESS;
 }
+
+

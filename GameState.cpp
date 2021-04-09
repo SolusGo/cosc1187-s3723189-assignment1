@@ -36,28 +36,22 @@ double GameState::getShipY()
 	return this->ship->gety();
 }
 
-void GameState::setMax(double x, double y)
+void GameState::setArena(double x, double y)
 {
-	this->max_X = x;
-	this->max_Y = y;
-}
-
-void GameState::setMin(double x, double y)
-{
-	this->min_X = x;
-	this->min_Y = y;
+	double vertical_wall = x * 0.10;
+	double horizontal_wall = y * 0.10;
+	this->min_X = vertical_wall;
+	this->min_Y = horizontal_wall;
+	this->max_X = vertical_wall*9.0;
+	this->max_Y = horizontal_wall*9.0;
 }
 
 bool GameState::hasCollided()
 {
-	
-	bool collided_x = ship->getx() >= this->max_X || ship->getx() <= this->min_X;
-	bool collided_y = ship->gety() >= this->max_X || ship->gety() <= this->min_Y;
-
 	bool collided_max_x = inRadius(this->max_X, this->getShipY());
-	bool collided_min_x = inRadius(0 , this->getShipY());
+	bool collided_min_x = inRadius(this->min_X , this->getShipY());
 	bool collided_max_y = inRadius(this->getShipX(), this->max_Y);
-	bool collided_min_y = inRadius(this->getShipX(), 0);
+	bool collided_min_y = inRadius(this->getShipX(), this->min_Y);
 	if (collided_max_x || collided_min_x || collided_max_y|| collided_min_y)
 	{
 		return true;
@@ -111,11 +105,33 @@ double GameState::getShipHitBox()
 bool GameState::inRadius(double x, double y)
 {
 	double distance = sqrt(pow(x - this->getShipX(), 2) + pow(y - this->getShipY(), 2));
-
+	printf("%f, %f \n", x, y);
 	if (distance <= this->getShipHitBox())
 	{
 		return true;
 	}
 
 	return false;
+}
+
+double GameState::getArenaCoords(int i)
+{
+	double point = -1.0;
+
+	switch (i)
+	{
+	case MIN_X:
+		point = this->min_X;
+		break;
+	case MIN_Y:
+		point = this->min_Y;
+		break;
+	case MAX_X:
+		point = this->max_X;
+		break;
+	case MAX_Y:
+		point = this->max_Y;
+		break;
+	}
+	return point;
 }
