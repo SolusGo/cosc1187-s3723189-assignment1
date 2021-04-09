@@ -3,7 +3,7 @@
 #ifndef GAMESTATE_H
 #define GAME_STATE
 #include "Ship.h"
-
+#include "Asteroid.h"
 #define MIN_X  0
 #define MIN_Y  1
 #define MAX_X  2
@@ -22,6 +22,10 @@ public:
 	void setTime(double time);
 	double getShipHitBox();
 	double getArenaCoords(int i);
+	double getAsteroidRadius();
+	void moveAsteroids();
+	double getAsteroidX();
+	double getAsteroidY();
 private:
 
 	Ship* ship;
@@ -31,6 +35,8 @@ private:
 	double min_X;
 	double elapsed_time;
 	bool inRadius(double x, double y);
+	void initiateAsteroids();
+	Asteroid* asteroid;
 };
 
 

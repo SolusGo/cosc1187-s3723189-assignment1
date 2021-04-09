@@ -2,6 +2,7 @@
 #include <math.h>
 #include <iostream>
 #include "Ship.h"
+#include "Asteroid.h"
 
 #if _WIN32
 #   include <Windows.h>
@@ -18,12 +19,14 @@
 
 GameState::GameState()
 {
-	this->min_X = 0.0;
-	this->max_X = 0.0;
-	this->min_Y = 0.0;
-	this->max_Y = 0.0;
+	this->min_X = 100.00;
+	this->max_X = 200.0;
+	this->min_Y = 100.00;
+	this->max_Y = 200.0;
 	this->ship = new Ship();
 	this->elapsed_time = 0.0;
+	asteroid = new Asteroid();
+	initiateAsteroids();
 }
 
 double GameState::getShipX()
@@ -78,6 +81,8 @@ void GameState::keyboard(unsigned char key, int x, int y)
 		{
 			this->ship->setPosition(400, 400);
 		}
+
+		asteroid->move(this->elapsed_time);
 		break;
 	case 'q':
 		exit(EXIT_SUCCESS);
@@ -105,7 +110,6 @@ double GameState::getShipHitBox()
 bool GameState::inRadius(double x, double y)
 {
 	double distance = sqrt(pow(x - this->getShipX(), 2) + pow(y - this->getShipY(), 2));
-	printf("%f, %f \n", x, y);
 	if (distance <= this->getShipHitBox())
 	{
 		return true;
@@ -134,4 +138,31 @@ double GameState::getArenaCoords(int i)
 		break;
 	}
 	return point;
+}
+
+void GameState::initiateAsteroids()
+{
+	asteroid->generateFeatures(this->min_X, min_Y, max_X, max_Y);
+}
+
+
+
+double GameState::getAsteroidRadius()
+{
+	return this->asteroid->getRadius();
+}
+
+void GameState::moveAsteroids()
+{
+	this->asteroid->move(this->elapsed_time);
+}
+
+double GameState::getAsteroidX()
+{
+	return this->asteroid->getX();
+}
+
+double GameState::getAsteroidY()
+{
+	return this->asteroid->getY();
 }

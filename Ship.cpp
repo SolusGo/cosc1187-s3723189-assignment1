@@ -89,17 +89,14 @@ void Ship::determineDirection(double newAngle)
 
 
 
-	double x = this->dir->x - this->pos->x;
+	/*double x = this->dir->x - this->pos->x;
 	double y = this->dir->y- this->pos->y;
 
 	double angle = 45 * 3.14 / 180.0;
-	printf("%f, %f \n", x, y);
-	printf("%f, a %f \n", cos(145.00), this->rotation);
 
-
-	this->dir->x = 10 * cos(angle) + this->dir->x;
-	this->dir->y = 10* sin(angle) + this->dir->y;
-	
+	this->dir->x = 10 * cos(0) + this->dir->x;
+	this->dir->y = 10* sin(0) + this->dir->y;
+	*/
 	 
 } 
 

@@ -149,6 +149,24 @@ void drawShipHitbox()
 	glEnd();
 }
 
+void drawAsteroid()
+{
+	
+
+	glColor3f(255, 255, 255);
+	glBegin(GL_LINE_LOOP);
+	for (int i = 0; i < 100; i++)
+	{
+		double theta = 2.0 * 3.1415926 * (i * 1.0) / 100.0;
+		double x = game->getAsteroidRadius() * cos(theta);
+		double y = game->getAsteroidRadius() * sin(theta);
+		glVertex2f(x + game->getAsteroidX() , y + game->getAsteroidY());
+	}
+	glEnd();
+
+
+}
+
 void drawArena()
 {
 	glColor3f(255, 255, 255);
@@ -166,6 +184,7 @@ void on_idle()
 	double dt = current_time - prev_time;
 	//ship->setTime(dt);
 	game->setTime(dt);
+	game->moveAsteroids();
 	prev_time = current_time;
 	glutPostRedisplay();
 }
@@ -173,7 +192,6 @@ void on_idle()
 void on_display()
 {
 	
-	//printf("current x: %d, current y: %d \n", ship->getx(), ship->gety());
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -182,6 +200,7 @@ void on_display()
 	drawShipHitbox();
 	draw_ship();
 	drawArena();
+	drawAsteroid();
 	int err;
 	while ((err = glGetError()) != GL_NO_ERROR)
 		printf("error: %s\n", gluErrorString(err));
