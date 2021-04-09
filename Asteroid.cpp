@@ -4,11 +4,14 @@
 #include <math.h>
 #include <iostream>
 #include "i3d_math.h"
+
+
 Asteroid::Asteroid()
 {
-	srand(time(NULL));
-
-	int random = rand() % 10 + 10;
+	
+	originPos.x = 1.0;
+	originPos.y = 1.0;
+	int random = rand() % 50 + 50;
 	radius = random * 1.0;
 	this->pos = new coord();
 	this->rotation = 0.0;
@@ -52,7 +55,7 @@ void Asteroid::generateFeatures(double min_x, double min_y, double max_x, double
 		tempX = -(rand() % 400) + (int)min_x;
 	}
 	
-	randomSign = rand() % 1;
+	randomSign = rand() % 2;
 
 	if (randomSign == 0)
 	{
@@ -66,18 +69,31 @@ void Asteroid::generateFeatures(double min_x, double min_y, double max_x, double
 	this->pos->x = tempX * 1.0;
 	this->pos->y = tempY * 1.0;
 
+
+
+	this->originPos.x = tempX * 1.0;
+	this->originPos.y = tempY * 1.0;
+	printf("%f, %f | %f, %f \n", originPos.x, originPos.y, this->pos->x, this->pos->y);
+	
 	tempX = rand() % xrange + min_x;
 	tempY = rand() % yrange + min_y;
 
 	double dest_x = (double)tempX;
 	double dest_y = (double)tempY;
-
-	double raidantheta = atan2(dest_y - this->getY(), dest_x - this->getX());
+	double raidantheta = atan2(dest_y - this->getY(), dest_x - this->getX()) * 180/ 3.14159265;
 	if (raidantheta < 0.0)
 		raidantheta += 360.0;
 
 	this->rotation = raidantheta;
-	std::cout << this->pos->y << " ];'" << this->pos->x << std::endl;
+
+}
+
+void Asteroid::resetPos()
+{
+
+	this->pos->x = this->originPos.x;
+	this->pos->y = this->originPos.y;
+	
 }
 
 void Asteroid::move(double time)
@@ -86,8 +102,8 @@ void Asteroid::move(double time)
 	double What = this->pos->x;
 	double Eh = this->pos->y;
 	
-	double angle = this->rotation;
-	printf(" What %f\n", angle);
+	double angle = (this->rotation) * 3.14 / 180.0;
+	//printf("x: %f, y: %f, angle; %f  \n", What, Eh, angle * 180/3.14);
 	if (time > 0.0)
 	{
 
@@ -97,6 +113,6 @@ void Asteroid::move(double time)
 		this->pos->y = newYpos;
 		this->pos->x = newxpos;
 	}
-	//std::cout << newYpos << " " << newxpos << std::endl;
+	//std::cout << this->pos->y << " " << this->pos->x << std::endl;
 }
 

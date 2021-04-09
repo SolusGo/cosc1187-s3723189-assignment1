@@ -9,7 +9,7 @@ class Ship {
 public:
 
 	Ship();
-
+	~Ship();
 	
 	double getx();
 	double gety();

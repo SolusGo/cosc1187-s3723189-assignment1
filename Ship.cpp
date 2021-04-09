@@ -1,6 +1,9 @@
 #include "Ship.h"
 #include <math.h>
 #include <iostream>
+
+#define VELOCITY 2000.0
+
 Ship::Ship() 
 {
 	pos = new coord();
@@ -9,10 +12,16 @@ Ship::Ship()
 	this->pos->y = 500.00;
 	this->dir->x = 500.00;
 	this->dir->y = 550.00;
-	this->velocity = 1000.0;
+	this->velocity = VELOCITY;
 	this->elapsed_time = 0.0;
 	this->rotation = 0.0;
 	this->hitradius = 140.0 / 2.0;
+}
+
+Ship::~Ship()
+{
+	delete pos;
+	delete dir;
 }
 
 double Ship::getx()

@@ -2,6 +2,7 @@
 #include <math.h>
 #include <iostream>
 #include "Ship.h"
+#include <stdlib.h>
 #include "Asteroid.h"
 
 #if _WIN32
@@ -17,14 +18,24 @@
 #   include <GL/glut.h>
 #endif
 
+#include<stdlib.h>
 GameState::GameState()
 {
-	this->min_X = 100.00;
-	this->max_X = 200.0;
-	this->min_Y = 100.00;
-	this->max_Y = 200.0;
+	srand(time(NULL));
+	this->min_coords = new coord();
+	this->max_coords = new coord();
 	this->ship = new Ship();
-	this->elapsed_time = 0.0;
+	this->ship_spawn = new coord();
+
+	this->min_coords->x = 256.00;
+	this->min_coords->y = 200.00;
+
+	this->max_coords->x = 2304.00;
+	this->max_coords->y = 1296.00;
+
+	this->currentWave = 10;
+
+	this->dt = 0.0;
 	asteroid = new Asteroid();
 	initiateAsteroids();
 }
@@ -43,22 +54,38 @@ void GameState::setArena(double x, double y)
 {
 	double vertical_wall = x * 0.10;
 	double horizontal_wall = y * 0.10;
-	this->min_X = vertical_wall;
-	this->min_Y = horizontal_wall;
-	this->max_X = vertical_wall*9.0;
-	this->max_Y = horizontal_wall*9.0;
+	this->min_coords->x = vertical_wall;
+	this->min_coords->y = horizontal_wall;
+	this->max_coords->x = vertical_wall*9.0;
+	this->max_coords->y = horizontal_wall*9.0;
+	this->ship_spawn->x = vertical_wall + 100.0;
+	this->ship_spawn->y = horizontal_wall + 100.0;
+	this->ship->setPosition(this->ship_spawn->x, this->ship_spawn->y);
+
+	//printf("%f, %f, %f, %f \n", this->min_X, this->min_Y, this->max_X, this->max_Y);
 }
 
 bool GameState::hasCollided()
 {
-	bool collided_max_x = inRadius(this->max_X, this->getShipY());
-	bool collided_min_x = inRadius(this->min_X , this->getShipY());
-	bool collided_max_y = inRadius(this->getShipX(), this->max_Y);
-	bool collided_min_y = inRadius(this->getShipX(), this->min_Y);
+	bool collided_max_x = inRadius(this->max_coords->x, this->getShipY());
+	bool collided_min_x = inRadius(this->min_coords->x, this->getShipY());
+	bool collided_max_y = inRadius(this->getShipX(), this->max_coords->y);
+	bool collided_min_y = inRadius(this->getShipX(), this->min_coords->y);
 	if (collided_max_x || collided_min_x || collided_max_y|| collided_min_y)
 	{
 		return true;
 	}
+
+	for (int i = 0; i < this->currentWave; i++)
+	{
+		if (this->circleCollision(this->getAsteroidX(i), this->getAsteroidY(i), this->getAsteroidRadius(i)))
+		{
+			return true;
+		}
+	}
+	
+
+
 	return false;
 }
 
@@ -76,13 +103,17 @@ void GameState::keyboard(unsigned char key, int x, int y)
 		break;
 	case 'w':
 		if (!hasCollided())
-		ship->moveUp(this->elapsed_time);
+		ship->moveUp(this->dt);
 		else
 		{
-			this->ship->setPosition(400, 400);
+			this->ship->setPosition(this->ship_spawn->x, this->ship_spawn->y);
+			for (int i = 0; i < currentWave; i++)
+			{
+				this->asteroids[i]->resetPos();
+			}
 		}
 
-		asteroid->move(this->elapsed_time);
+		asteroid->move(this->dt);
 		break;
 	case 'q':
 		exit(EXIT_SUCCESS);
@@ -94,7 +125,7 @@ void GameState::keyboard(unsigned char key, int x, int y)
 
 void GameState::setTime(double time)
 {
-	this->elapsed_time = time;
+	this->dt = time;
 }
 
 double GameState::getShipRot()
@@ -105,6 +136,93 @@ double GameState::getShipRot()
 double GameState::getShipHitBox()
 {
 	return this->ship->getradius();
+}
+
+
+double GameState::getArenaCoords(int i)
+{
+	double point = -1.0;
+
+	switch (i)
+	{
+	case MIN_X:
+		point = this->min_coords->x;
+		break;
+	case MIN_Y:
+		point = this->min_coords->y;
+		break;
+	case MAX_X:
+		point = this->max_coords->x;
+		break;
+	case MAX_Y:
+		point = this->max_coords->y;
+		break;
+	}
+	return point;
+}
+
+void GameState::resetShip()
+{
+	this->ship->setPosition(this->ship_spawn->x, this->ship_spawn->y);
+}
+
+
+void GameState::initiateAsteroids()
+{
+	//asteroid->generateFeatures(min_coords->x, min_coords->y, max_coords->x, max_coords->y);
+
+	for (int i = 0; i < MAX_ASTEROIDS; i++)
+	{
+		asteroids[i] = new Asteroid();
+		asteroids[i]->generateFeatures(min_coords->x, min_coords->y, max_coords->x, max_coords->y);
+	}
+}
+
+
+
+double GameState::getAsteroidRadius(int x)
+{
+	return this->asteroids[x]->getRadius();
+}
+
+void GameState::moveAsteroids()
+{
+	//this->asteroid->move(this->elapsed_time);
+	for (int i = 0; i < this->currentWave; i++)
+	{
+		this->asteroids[i]->move(this->dt);
+	}
+}
+
+double GameState::getAsteroidX(int x)
+{
+	return this->asteroids[x]->getX();
+}
+
+double GameState::getAsteroidY(int x)
+{
+	return this->asteroids[x]->getY();
+}
+
+
+/*
+	Collision methods
+*/
+bool GameState::circleCollision(double x, double y, double r)
+{
+	bool collided = false;
+	//Get distance
+	double distance_X = ship->getx() - x;
+	double distance_Y = ship->gety() - y;
+	double distance = sqrt((distance_X * distance_X) + (distance_Y * distance_Y));
+
+	if (distance <= r + this->ship->getradius())
+	{
+		collided = true;
+	}
+
+	return collided;
+
 }
 
 bool GameState::inRadius(double x, double y)
@@ -118,51 +236,69 @@ bool GameState::inRadius(double x, double y)
 	return false;
 }
 
-double GameState::getArenaCoords(int i)
-{
-	double point = -1.0;
 
-	switch (i)
+int GameState::nearWall()
+{
+	int number = -1;
+	bool near_max_x = inRadius(this->max_coords->x - 150.00, this->getShipY());
+	bool near_min_x = inRadius(this->min_coords->x + 150.00, this->getShipY());
+	bool near_y = inRadius(this->getShipX(), this->max_coords->y - 150.00);
+	bool near_min_y = inRadius(this->getShipX(), this->min_coords->y + 150.00);
+
+
+
+	/*if (near_max_x || near_min_x || near_y || near_min_y)
 	{
-	case MIN_X:
-		point = this->min_X;
-		break;
-	case MIN_Y:
-		point = this->min_Y;
-		break;
-	case MAX_X:
-		point = this->max_X;
-		break;
-	case MAX_Y:
-		point = this->max_Y;
-		break;
+		return true;
+	}*/
+
+	if (near_max_x) 
+	{
+		number = 0;
 	}
-	return point;
+	else if (near_min_x)
+	{
+		number = 1;
+	}
+	else if (near_y)
+	{
+		number = 2;
+	}
+	else if (near_min_y)
+	{
+		number = 3;
+	}
+	
+	return number;
 }
 
-void GameState::initiateAsteroids()
+void GameState::startWave()
 {
-	asteroid->generateFeatures(this->min_X, min_Y, max_X, max_Y);
+	
+	this->currentWave++;
+	std::cout << "accessed \n";
+	Sleep(300);
+	this->asteroids[0]->getRadius();
+	
+	
 }
 
-
-
-double GameState::getAsteroidRadius()
+int GameState::getWave()
 {
-	return this->asteroid->getRadius();
+	return this->currentWave;
 }
 
-void GameState::moveAsteroids()
+void GameState::checkGameStatus()
 {
-	this->asteroid->move(this->elapsed_time);
+	//printf("%f \n", elapsed_time);
+	for (int i = 0; i < currentWave; i++)
+	{
+		asteroids[i]->resetPos();
+	}
+	
 }
 
-double GameState::getAsteroidX()
+void GameState::setElapsedtime(double time)
 {
-	return this->asteroid->getX();
-}
-
-double GameState::getAsteroidY()
-{
-	return this->asteroid->getY();
+	this->elapsedtime = time;
 }

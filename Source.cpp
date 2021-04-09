@@ -153,29 +153,94 @@ void drawAsteroid()
 {
 	
 
-	glColor3f(255, 255, 255);
-	glBegin(GL_LINE_LOOP);
-	for (int i = 0; i < 100; i++)
+	for (int j = 0; j < game->getWave(); j++)
 	{
-		double theta = 2.0 * 3.1415926 * (i * 1.0) / 100.0;
-		double x = game->getAsteroidRadius() * cos(theta);
-		double y = game->getAsteroidRadius() * sin(theta);
-		glVertex2f(x + game->getAsteroidX() , y + game->getAsteroidY());
+		glColor3f(255, 255, 255);
+		glBegin(GL_LINE_LOOP);
+		//std::cout << j <<" "<< game->getAsteroidX(j) << " " << game->getAsteroidY(j) << std::endl;
+		for (int i = 0; i < 100; i++)
+		{
+			double theta = 2.0 * 3.1415926 * (i * 1.0) / 100.0;
+			double x = game->getAsteroidRadius(j) * cos(theta);
+			double y = game->getAsteroidRadius(j) * sin(theta);
+			glVertex2f(x + game->getAsteroidX(j), y + game->getAsteroidY(j));
+		}
+		glEnd();
 	}
-	glEnd();
+	
 
 
 }
 
 void drawArena()
 {
-	glColor3f(255, 255, 255);
-	glBegin(GL_LINE_LOOP);
+	/*if (game->nearWall())
+	{
+		glColor3f(255, 0, 0);
+	}
+	else
+	{
+		glColor3f(255, 255, 255);
+	}*/
+
+	int number = game->nearWall();
+
+	if (number == 3)
+	{
+		glColor3f(255, 0, 0);
+	}
+	else
+	{
+		glColor3f(255, 255, 255);
+	}
+
+	glBegin(GL_LINES);
 	glVertex2f(game->getArenaCoords(MIN_X), game->getArenaCoords(MIN_Y));
 	glVertex2f(game->getArenaCoords(MAX_X), game->getArenaCoords(MIN_Y));
+	glEnd();
+
+	if (number == 0)
+	{
+		glColor3f(255, 0, 0);
+	}
+	else
+	{
+		glColor3f(255, 255, 255);
+	}
+	glBegin(GL_LINES);
+	glVertex2f(game->getArenaCoords(MAX_X), game->getArenaCoords(MIN_Y));
+	glVertex2f(game->getArenaCoords(MAX_X), game->getArenaCoords(MAX_Y));
+	glEnd();
+
+	if (number == 2)
+	{
+		glColor3f(255, 0, 0);
+	}
+	else
+	{
+		glColor3f(255, 255, 255);
+	}
+	glBegin(GL_LINES);
 	glVertex2f(game->getArenaCoords(MAX_X), game->getArenaCoords(MAX_Y));
 	glVertex2f(game->getArenaCoords(MIN_X), game->getArenaCoords(MAX_Y));
 	glEnd();
+
+	if (number == 1)
+	{
+		glColor3f(255, 0, 0);
+	}
+	else
+	{
+		glColor3f(255, 255, 255);
+	}
+
+	glBegin(GL_LINES);
+	glVertex2f(game->getArenaCoords(MIN_X), game->getArenaCoords(MAX_Y));
+	glVertex2f(game->getArenaCoords(MIN_X), game->getArenaCoords(MIN_Y));
+	glEnd();
+
+
+
 }
 
 void on_idle()
@@ -185,6 +250,15 @@ void on_idle()
 	//ship->setTime(dt);
 	game->setTime(dt);
 	game->moveAsteroids();
+	game->setElapsedtime(current_time);
+	if (game->hasCollided())
+	{
+		game->resetShip();
+		game->checkGameStatus();
+	}
+
+
+
 	prev_time = current_time;
 	glutPostRedisplay();
 }
