@@ -4,12 +4,12 @@
 #define GAME_STATE
 #include "Ship.h"
 #include "Asteroid.h"
-#include <list>
+#include <time.h>
 #define MIN_X  0
 #define MIN_Y  1
 #define MAX_X  2
 #define MAX_Y  3
-#define WAVE_INTERVAL 3
+#define WAVE_INTERVAL 5
 #define MAX_ASTEROIDS 10
 class GameState {
 
@@ -50,10 +50,16 @@ private:
 	coord* max_coords;
 	coord* min_coords;
 	
+	clock_t this_time;
+	clock_t last_time;
+	double timer;
+
 	int currentWave;
 	double dt;
 	double elapsedtime;
 	bool inRadius(double x, double y);
+
+
 
 	bool circleCollision(double x, double y, double r);
 	void initiateAsteroids();

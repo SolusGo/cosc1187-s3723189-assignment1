@@ -22,6 +22,13 @@
 GameState::GameState()
 {
 	srand(time(NULL));
+
+	this_time = clock();
+	last_time = this_time;
+
+	timer = 0.0;
+
+
 	this->min_coords = new coord();
 	this->max_coords = new coord();
 	this->ship = new Ship();
@@ -33,7 +40,7 @@ GameState::GameState()
 	this->max_coords->x = 2304.00;
 	this->max_coords->y = 1296.00;
 
-	this->currentWave = 10;
+	this->currentWave = 1;
 
 	this->dt = 0.0;
 	asteroid = new Asteroid();
@@ -274,13 +281,15 @@ int GameState::nearWall()
 
 void GameState::startWave()
 {
+	if (currentWave < MAX_ASTEROIDS)
+	{
+		this->currentWave++;
+	}
 	
-	this->currentWave++;
-	std::cout << "accessed \n";
-	Sleep(300);
-	this->asteroids[0]->getRadius();
-	
-	
+	for (int i = 0; i < currentWave; i++)
+	{
+		this->asteroids[i]->resetPos();
+	}
 }
 
 int GameState::getWave()
@@ -290,10 +299,17 @@ int GameState::getWave()
 
 void GameState::checkGameStatus()
 {
-	//printf("%f \n", elapsed_time);
-	for (int i = 0; i < currentWave; i++)
+	printf("%f \n", elapsedtime);
+	this_time = clock();
+
+	timer += (double)(this_time - last_time);
+
+	last_time = this_time; 
+	
+	if (timer > (double)(WAVE_INTERVAL * CLOCKS_PER_SEC))
 	{
-		asteroids[i]->resetPos();
+		timer -= (double)(WAVE_INTERVAL * CLOCKS_PER_SEC);
+		startWave();
 	}
 	
 }

@@ -254,10 +254,10 @@ void on_idle()
 	if (game->hasCollided())
 	{
 		game->resetShip();
-		game->checkGameStatus();
+		
 	}
 
-
+	game->checkGameStatus();
 
 	prev_time = current_time;
 	glutPostRedisplay();

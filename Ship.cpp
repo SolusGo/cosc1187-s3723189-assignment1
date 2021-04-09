@@ -1,11 +1,11 @@
 #include "Ship.h"
 #include <math.h>
 #include <iostream>
-
 #define VELOCITY 2000.0
 
 Ship::Ship() 
 {
+	
 	pos = new coord();
 	dir = new coord();
 	this->pos->x = 500.00;
