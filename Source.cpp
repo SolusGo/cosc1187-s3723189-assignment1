@@ -26,6 +26,7 @@ double current_time = 0.0;
 Ship* ship = new Ship();
 GameState *game;
 
+
 void display(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -130,8 +131,35 @@ void draw_ship()
 	//printf("y: %d, y + height: %d \n", ship->gety(), ship->getx() + height);
 	
 	glEnd();
-
 	glPopMatrix();
+
+	
+	//glPointSize(10);
+
+	
+	for (int i = 0; i < game->getParticles(); i++)
+	{
+		
+		
+		glPushMatrix();
+		glTranslatef(game->getParticleX(i), game->getParticleY(i) + 50, 0.0);
+		
+		glRotatef(game->getParticleRotation(i) + 90, 0, 0, 1);
+		glColor4f(255, 255, 255, game->getAlpha(i));
+		glPointSize(game->getParticleSize(i));
+		printf("%f \n", game->getParticleSize(i));
+		glBegin(GL_POINTS);
+		glVertex2f(0, 0 - 50);
+		glEnd();
+		glPopMatrix();
+		
+		
+	}
+
+	
+	
+
+	
 	
 }
 
@@ -171,6 +199,7 @@ void drawAsteroid()
 
 
 }
+
 
 void drawArena()
 {
@@ -239,9 +268,8 @@ void drawArena()
 	glVertex2f(game->getArenaCoords(MIN_X), game->getArenaCoords(MIN_Y));
 	glEnd();
 
-
-
 }
+
 
 void on_idle()
 {
@@ -275,6 +303,7 @@ void on_display()
 	draw_ship();
 	drawArena();
 	drawAsteroid();
+	//drawParticles();
 	int err;
 	while ((err = glGetError()) != GL_NO_ERROR)
 		printf("error: %s\n", gluErrorString(err));
@@ -289,6 +318,8 @@ void init()
 	glMatrixMode(GL_PROJECTION);
 	glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
 	glMatrixMode(GL_MODELVIEW);
+	glEnable(GL_BLEND); //Enable blending.
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set blending function.
 }
 
 int main(int argc, char** argv)

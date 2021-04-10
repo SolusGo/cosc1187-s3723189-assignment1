@@ -26,8 +26,9 @@ GameState::GameState()
 	this_time = clock();
 	last_time = this_time;
 
+	//  timers
 	timer = 0.0;
-
+	particle_timer = 0.0;
 
 	this->min_coords = new coord();
 	this->max_coords = new coord();
@@ -104,20 +105,17 @@ void GameState::keyboard(unsigned char key, int x, int y)
 
 	case 'a':
 		ship->moveLeft();
+		this->addParticle();
 		break;
 	case 'd':
 		ship->moveRight();
+		this->addParticle();
 		break;
 	case 'w':
 		if (!hasCollided())
-		ship->moveUp(this->dt);
-		else
 		{
-			this->ship->setPosition(this->ship_spawn->x, this->ship_spawn->y);
-			for (int i = 0; i < currentWave; i++)
-			{
-				this->asteroids[i]->resetPos();
-			}
+			ship->moveUp(this->dt);
+			this->addParticle();
 		}
 
 		asteroid->move(this->dt);
@@ -129,6 +127,9 @@ void GameState::keyboard(unsigned char key, int x, int y)
 		break;
 	}
 }
+
+// TODO: Implement Reset all asteroids spawnpoint method
+// TODO: Implement particles 
 
 void GameState::setTime(double time)
 {
@@ -299,22 +300,105 @@ int GameState::getWave()
 
 void GameState::checkGameStatus()
 {
-	printf("%f \n", elapsedtime);
+
+	std::deque<Particle*>::iterator it = particles.begin();
+	for (it = particles.begin(); it != particles.end(); it++)
+	{
+		(*it)->move(this->dt);
+	}
+
+	manageParticles();
+
 	this_time = clock();
 
 	timer += (double)(this_time - last_time);
+	
+	particle_timer += (double)(this_time - last_time);
 
 	last_time = this_time; 
-	
+
+	if (particle_timer > (double)(0.5 * CLOCKS_PER_SEC))
+	{
+		particle_timer -= (double)(1 * CLOCKS_PER_SEC);
+		
+	}
+
 	if (timer > (double)(WAVE_INTERVAL * CLOCKS_PER_SEC))
 	{
 		timer -= (double)(WAVE_INTERVAL * CLOCKS_PER_SEC);
 		startWave();
+		
+		
+	}
+
+	
+}
+
+void GameState::manageParticles()
+{
+	
+	
+	std::deque<Particle*>::iterator it = particles.begin();
+
+	while (it != particles.end())
+	{
+		if ((*it)->getStatus() == false)
+		{
+			std::cout << "erased \n";
+			it = particles.erase(it);
+		} else
+		it++;
+	}
+
+	
+
+	for (it = particles.begin(); it != particles.end(); it++)
+	{
+		
+		(*it)->reduceDuration();
 	}
 	
+}
+
+void GameState::addParticle()
+{
+	particles.push_back(new Particle(this->getShipRot(), ship->getx(), ship->gety()));
+}
+
+
+
+double GameState::getAlpha(int i)
+{
+	return particles[i]->getparticleTransparency();
+}
+
+double GameState::getParticles()
+{
+	return particles.size();
 }
 
 void GameState::setElapsedtime(double time)
 {
 	this->elapsedtime = time;
+}
+
+double GameState::getParticleX(int x)
+{
+	return particles[x]->getX();
+}
+
+double GameState::getParticleY(int x)
+{
+	return particles[x]->getY();
+}
+
+double GameState::getParticleRotation(int x)
+{
+	return particles[x]->getRotation();
+}
+
+
+double GameState::getParticleSize(int i)
+{
+	return particles[i]->getSize();
 }
