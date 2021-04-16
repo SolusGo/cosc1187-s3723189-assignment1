@@ -22,6 +22,8 @@ struct coord
 class i3d_math {
 public:
 	i3d_math();
-	coord *scalarMulp(coord *previouspos, double velocity);
+	bool circleCollision(double x, double y, double r, double x2, double y2, double r2);
+	bool inRadius(double x, double y, double x2, double y2, double r2);
+
 };
 #endif

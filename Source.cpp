@@ -5,7 +5,7 @@
 #include "GameState.h"
 #include <math.h>
 #include "i3d_math.h"
-
+#include <string>
 #if _WIN32
 #   include <Windows.h>
 #endif
@@ -132,14 +132,71 @@ void draw_ship()
 		glEnd();
 		glPopMatrix();
 		
-		
 	}
 
 	
-	
+}
+
+void drawText()
+{
+	glColor3f(255, 255, 255);
+	glPushMatrix();
+	glTranslatef(g_screen_width * 0.1, g_screen_height * 0.2 * 4.55, 0.0);
 
 	
+	std::string t = std::to_string(game->getScore());
+	for (auto c = t.begin(); c != t.end(); ++c)
+	{
+		glutStrokeCharacter(GLUT_STROKE_ROMAN, *c);
+	}
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(g_screen_width * 0.20 * 3.75, g_screen_height * 0.2 * 4.55, 0.0);
+
 	
+	std::string ct = std::to_string(game->get_time());
+	for (auto c = ct.begin(); c != ct.end(); ++c)
+	{
+		glutStrokeCharacter(GLUT_STROKE_ROMAN, *c);
+	}
+	glPopMatrix();
+
+	
+
+	if (!game->is_alive())
+	{
+		glPushMatrix();
+		glTranslatef(g_screen_width * 0.2, g_screen_height * 0.50, 0.0);
+
+		std::string string = "Press any key to start...";
+		for (auto c = string.begin(); c != string.end(); ++c)
+		{
+			glutStrokeCharacter(GLUT_STROKE_ROMAN, *c);
+		}
+		glPopMatrix();
+	}
+
+
+
+}
+
+void drawBullets()
+{
+	glColor3f(255, 255, 255);
+	
+	glPointSize(5.0);
+
+	for (int i = 0; i < game->getBulletsSize(); i++)
+	{
+		glPushMatrix();
+		glTranslatef(game->getBullet_X(i), game->getBullet_Y(i), 0.0);
+		glRotatef(game->getBulletDirection(i), 0, 0, 1);
+		glBegin(GL_POINTS);
+		glVertex2f(0, 0 + 100);
+		glEnd();
+		glPopMatrix();
+	}
 }
 
 void drawShipHitbox()
@@ -156,11 +213,13 @@ void drawShipHitbox()
 	glEnd();
 }
 
+
+
 void drawAsteroid()
 {
 	
 
-	for (int j = 0; j < game->getWave(); j++)
+	for (int j = 0; j < game->getNumAsteroids(); j++)
 	{
 		glColor3f(255, 255, 255);
 	/*	glBegin(GL_LINE_LOOP);
@@ -273,15 +332,15 @@ void on_idle()
 	double dt = current_time - prev_time;
 	//ship->setTime(dt);
 	game->setTime(dt);
-	game->moveAsteroids();
+	
 	game->setElapsedtime(current_time);
-	if (game->hasCollided())
+	/*if (game->hasCollided())
 	{
 		game->resetShip();
 		
-	}
+	}*/
 
-	game->checkGameStatus();
+	game->updateGameStatus();
 
 	prev_time = current_time;
 	glutPostRedisplay();
@@ -296,7 +355,13 @@ void on_display()
 
 	//render_frame();
 	drawShipHitbox();
-	draw_ship();
+	if (game->is_alive())
+	{
+		draw_ship();
+		drawBullets();
+	}
+	
+	drawText();
 	drawArena();
 	drawAsteroid();
 	//drawParticles();
@@ -305,6 +370,8 @@ void on_display()
 		printf("error: %s\n", gluErrorString(err));
 	glutSwapBuffers();
 }
+
+
 
 void init()
 {

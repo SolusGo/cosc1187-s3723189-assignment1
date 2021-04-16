@@ -28,8 +28,10 @@ GameState::GameState()
 
 	//  timers
 	timer = 0.0;
-	particle_timer = 0.0;
-
+	game_time = 0.0;
+	wave_timer = 0.0;
+	score = 0;
+	ship_destroyed = false;
 	this->min_coords = new coord();
 	this->max_coords = new coord();
 	this->ship = new Ship();
@@ -83,45 +85,75 @@ bool GameState::hasCollided()
 		return true;
 	}
 
-	for (int i = 0; i < this->currentWave; i++)
+	for (int i = 0; i < this->getNumAsteroids(); i++)
 	{
-		if (this->circleCollision(this->getAsteroidX(i), this->getAsteroidY(i), this->getAsteroidRadius(i)))
+		if (math.circleCollision(this->getAsteroidX(i), this->getAsteroidY(i), this->getAsteroidRadius(i), ship->getx(), ship->gety(), ship->getradius()))
 		{
 			return true;
 		}
 	}
-	
-
-
 	return false;
 }
+
+
+
 
 void GameState::keyboard(unsigned char key, int x, int y)
 {
 	switch (key)
 	{
-	case 27:
 
+	case SPACEBAR:
+		bullets.push_back(new Bullet(ship->getx(), ship->gety(), ship->getrotation()));
+		if (!is_alive())
+		{
+			reset_Game();
+		}
+		break;
+
+	case 'A':
 	case 'a':
-		ship->moveLeft(dt);
-		this->addParticle();
+		if (is_alive())
+		{
+			ship->moveLeft(dt);
+			this->addParticle();
+		}
+		else
+		{
+			reset_Game();
+		}
 		break;
+	case 'D':
 	case 'd':
-		ship->moveRight(dt);
-		this->addParticle();
+		if (is_alive())
+		{
+			ship->moveRight(dt);
+			this->addParticle();
+		}
+		else
+		{
+			reset_Game();
+		}
 		break;
+	case 'W':
 	case 'w':
-		if (!hasCollided())
+		if (is_alive())
 		{
 			ship->moveUp(this->dt);
 			this->addParticle();
 		}
+		else
+		{
+			reset_Game();
+		}
 
 		break;
+	case 'Q':
 	case 'q':
 		exit(EXIT_SUCCESS);
 		break;
 	default:
+		std::cout << "hello" << std::endl;
 		break;
 	}
 }
@@ -167,9 +199,20 @@ double GameState::getArenaCoords(int i)
 	return point;
 }
 
+void GameState::reset_Game()
+{
+	score = 0;
+	currentWave = 0;
+	game_time = 0.0;
+	wave_timer = 0.0;
+	startWave();
+	resetShip();
+}
+
 void GameState::resetShip()
 {
 	this->ship->setPosition(this->ship_spawn->x, this->ship_spawn->y);
+	ship_destroyed = false;
 }
 
 
@@ -181,7 +224,6 @@ void GameState::initiateAsteroids()
 
 	for (int i = 0; i < currentWave; i++)
 	{
-		std::cout << "YEAH \n";
 		asteroids.push_back(new Asteroid());
 		asteroids.back()->generateFeatures(min_coords->x, min_coords->y, max_coords->x, max_coords->y);
 	}
@@ -220,25 +262,6 @@ double GameState::getAsteroidY(int x)
 }
 
 
-/*
-	Collision methods
-*/
-bool GameState::circleCollision(double x, double y, double r)
-{
-	bool collided = false;
-	//Get distance
-	double distance_X = ship->getx() - x;
-	double distance_Y = ship->gety() - y;
-	double distance = sqrt((distance_X * distance_X) + (distance_Y * distance_Y));
-
-	if (distance <= r + this->ship->getradius())
-	{
-		collided = true;
-	}
-
-	return collided;
-
-}
 
 bool GameState::inRadius(double x, double y)
 {
@@ -252,13 +275,14 @@ bool GameState::inRadius(double x, double y)
 }
 
 
+
 int GameState::nearWall()
 {
 	int number = -1;
-	bool near_max_x = inRadius(this->max_coords->x - 150.00, this->getShipY());
-	bool near_min_x = inRadius(this->min_coords->x + 150.00, this->getShipY());
-	bool near_y = inRadius(this->getShipX(), this->max_coords->y - 150.00);
-	bool near_min_y = inRadius(this->getShipX(), this->min_coords->y + 150.00);
+	bool near_max_x = math.inRadius(this->max_coords->x - 150.00, this->getShipY(), ship->getx(), ship->gety(), ship->getradius());
+	bool near_min_x = math.inRadius(this->min_coords->x + 150.00, this->getShipY(), ship->getx(), ship->gety(), ship->getradius());
+	bool near_y = math.inRadius(this->getShipX(), this->max_coords->y - 150.00, ship->getx(), ship->gety(), ship->getradius());
+	bool near_min_y = math.inRadius(this->getShipX(), this->min_coords->y + 150.00, ship->getx(), ship->gety(), ship->getradius());
 
 
 
@@ -296,19 +320,45 @@ void GameState::startWave()
 		this->asteroids[i]->resetPos();
 	}
 	*/
+	for (int i = 0; i < asteroids.size(); i++)
+	{
+		delete asteroids[i];
+	}
+
 	asteroids.clear();
 	initiateAsteroids();
 }
 
-int GameState::getWave()
+int GameState::getNumAsteroids()
 {
-	return this->currentWave;
+	return this->asteroids.size();
 }
 
-void GameState::checkGameStatus()
+void GameState::updateGameStatus()
 {
-
+	moveAsteroids();
 	manageParticles();
+	updateBulletStatus();
+
+	if (hasCollided())
+	{
+		ship_destroyed = true;
+		ship->setPosition(-1000, -1000);
+	}
+
+	std::deque<Asteroid*>::iterator it3 = asteroids.begin();
+
+	while (it3 != asteroids.end())
+	{
+		if ((*it3)->get_hitpoints() <= 0)
+		{
+			score += 1;
+			delete* it3;
+			it3 = asteroids.erase(it3);
+		}
+		else
+		it3++;
+	}
 
 	this_time = clock();
 
@@ -319,12 +369,20 @@ void GameState::checkGameStatus()
 
 
 
-	if (timer > (double)(WAVE_INTERVAL * CLOCKS_PER_SEC))
+
+	if (timer > (double)(1 * CLOCKS_PER_SEC))
 	{
-		timer -= (double)(WAVE_INTERVAL * CLOCKS_PER_SEC);
+		timer -= (double)(1 * CLOCKS_PER_SEC);
+
+		game_time += 1.0;
+		wave_timer += 1.0;
+		
+	}
+
+	if (wave_timer == WAVE_INTERVAL)
+	{
+		wave_timer = 0;
 		startWave();
-		
-		
 	}
 
 	std::deque<Particle*>::iterator it = particles.begin();
@@ -333,7 +391,52 @@ void GameState::checkGameStatus()
 		(*it)->move(this->dt);
 	}
 
+	std::deque<Bullet*>::iterator it2 = bullets.begin();
+	while(it2 != bullets.end())
+	{
+		(*it2)->move(dt);
+		it2++;
+	}
+
 	
+}
+
+void GameState::updateBulletStatus()
+{
+	std::deque<Bullet*>::iterator it2 = bullets.begin();
+	std::deque<Asteroid*>::iterator it;
+	bool inRadius = false;
+	
+	while (it2 != bullets.end())
+	{
+		it = asteroids.begin();
+
+		while (it != asteroids.end())
+		{
+			inRadius = math.circleCollision((*it2)->getX(), (*it2)->getY(), 20, (*it)->getX(), (*it)->getY(),
+				(*it)->getRadius());
+			if (inRadius)
+			{
+				delete* it2;
+				it2 = bullets.erase(it2);
+				(*it)->reduceHealth(20);
+				break;
+			}
+
+			it++;
+		}
+
+	
+		
+		if (inRadius == false)
+		{
+			it2++;
+		}
+		else
+		{
+			inRadius == false;
+		}
+	}
 }
 
 void GameState::manageParticles()
@@ -346,6 +449,7 @@ void GameState::manageParticles()
 	{
 		if ((*it)->getStatus() == false)
 		{
+			delete *it;
 			it = particles.erase(it);
 		} else
 		it++;
@@ -414,4 +518,40 @@ std::deque<coord> GameState::get_asteroid_corners(int i)
 double GameState::getAsteroidRotation(int i)
 {
 	return asteroids[i]->get_rotation();
+}
+
+double GameState::getBulletDirection(int i)
+{
+	return bullets[i]->getAngle();
+}
+
+double GameState::getBullet_X(int i)
+{
+	return bullets[i]-> getX();
+}
+
+double GameState::getBullet_Y(int i)
+{
+	return bullets[i]->getY();
+}
+
+
+int GameState::getBulletsSize()
+{
+	return bullets.size();
+}
+
+int GameState::getScore()
+{
+	return score;
+}
+
+double GameState::get_time()
+{
+	return game_time;
+}
+
+bool GameState::is_alive()
+{
+	return !ship_destroyed;
 }

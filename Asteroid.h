@@ -18,7 +18,9 @@ public:
 	void generateFeatures(double min_x, double min_y, double max_x, double max_y);
 	void move(double time);
 	void resetPos();
+	void reduceHealth(int i);
 	std::deque<coord> get_corners();
+	int get_hitpoints();
 private:
 	void initiateCorners();
 	double radius;
@@ -27,6 +29,7 @@ private:
 	coord* pos;
 	coord originPos;
 	double velocity;
+	int hitpoints;
 	double rotation_speed;
 	double rotation;
 	std::deque<coord> corners;

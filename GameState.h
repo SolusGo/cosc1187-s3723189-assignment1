@@ -8,6 +8,8 @@
 #include <list>
 #include <deque>
 #include "Particle.h"
+#include "Bullet.h"
+#include "i3d_math.h"
 #define MIN_X  0
 #define MIN_Y  1
 #define MAX_X  2
@@ -15,6 +17,7 @@
 #define WAVE_INTERVAL 10
 #define MAX_ASTEROIDS 50
 #define MAX_PARTICLES 10
+#define SPACEBAR 32
 class GameState {
 
 public:
@@ -29,36 +32,59 @@ public:
 	void setElapsedtime(double time);
 	void moveAsteroids();
 
-
+	void updateGameStatus();
+	void updateBulletStatus();
 	void resetShip();
 	double getParticles();
 	void startWave();
-	void checkGameStatus();
 	void addParticle();
 	void manageParticles();
 	//Methods regarding collisions 
 	bool hasCollided();
 	int nearWall();
 	
-	//Getters 
+	//Getters
+	
+	//Ship
 	double getShipY();
 	double getShipX();
+	double getShipHitBox();
+
+	//Asteroid
 	double getAsteroidX(int x);
 	double getAsteroidY(int x);
+	double getAsteroidRadius(int x);
+	double getAsteroidRotation(int i);
+
+	//Particle
 	double getParticleX(int x);
 	double getParticleY(int x);
 	double getParticleRotation(int x);
 	double getAlpha(int i);
-	double getShipHitBox();
+	
+
+
 	double getArenaCoords(int i);
-	double getAsteroidRadius(int x);
+	
+	//Remove getParticleSize
 	double getParticleSize(int i);
-	double getAsteroidRotation(int i);
+
+
+	//Bullet
+	double getBulletDirection(int i);
+	double getBullet_X(int i);
+	double getBullet_Y(int i);
+	int getBulletsSize();
+
+	double get_time();
+	bool is_alive();
+	int getScore();
+
 	std::deque<coord> get_asteroid_corners(int i);
 
 	
 
-	int getWave();
+	int getNumAsteroids();
 
 private:
 
@@ -69,22 +95,32 @@ private:
 	
 	clock_t this_time;
 	clock_t last_time;
+
+	//USED FOR CLOCK() function
 	double timer;
-	double particle_timer;
+	double wave_timer;
+
+	double game_time;
+
 
 	int currentWave;
+	int score;
 	double dt;
 	double elapsedtime;
 	bool inRadius(double x, double y);
+	bool ship_destroyed;
 
 
-
-	bool circleCollision(double x, double y, double r);
 	void initiateAsteroids();
 
 	std::deque<Particle*> particles;
-
 	std::deque<Asteroid*> asteroids ;
+	std::deque<Bullet*> bullets;
+
+
+	void reset_Game();
+	i3d_math math;
+
 };
 
 

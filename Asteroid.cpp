@@ -14,6 +14,7 @@ Asteroid::Asteroid()
 	originPos.y = 1.0;
 	int random = rand() % 50 + 50;
 	radius = random * 1.0;
+	hitpoints = (int)random;
 	this->pos = new coord();
 	this->direction_angle = 0.0;
 	this->velocity =(double)( rand() % 100) + 200.0;
@@ -176,6 +177,8 @@ void Asteroid::initiateCorners()
 
 	}
 
+
+	printf("%d \n", corners.size());
 	
 }
 
@@ -187,4 +190,14 @@ std::deque<coord> Asteroid::get_corners()
 double Asteroid::get_rotation()
 {
 	return rotation;
+}
+
+void Asteroid::reduceHealth(int i)
+{
+	hitpoints -= i;
+}
+
+int Asteroid::get_hitpoints()
+{
+	return hitpoints;
 }
