@@ -4,6 +4,7 @@
 #include "Ship.h"
 #include "GameState.h"
 #include <math.h>
+#include "i3d_math.h"
 
 #if _WIN32
 #   include <Windows.h>
@@ -43,29 +44,7 @@ void display(void)
 	glutSwapBuffers();
 }
 
-/* You can ignore this for now, it just lets you exit when you press 'q' or ESC */
-void keyboard(unsigned char key, int x, int y)
-{
-	switch (key)
-	{
-	case 27:
 
-	case 'a':
-		ship->moveLeft();
-		break;
-	case 'd':
-		ship->moveRight();
-		break;
-	case 'w':
-		//ship->moveUp(0);
-		break;
-	case 'q':
-		exit(EXIT_SUCCESS);
-		break;
-	default:
-		break;
-	}
-}
 
 void key_presswrapper(unsigned char key, int x, int y)
 {
@@ -147,7 +126,7 @@ void draw_ship()
 		glRotatef(game->getParticleRotation(i) + 90, 0, 0, 1);
 		glColor4f(255, 255, 255, game->getAlpha(i));
 		glPointSize(game->getParticleSize(i));
-		printf("%f \n", game->getParticleSize(i));
+		//printf("%f \n", game->getParticleSize(i));
 		glBegin(GL_POINTS);
 		glVertex2f(0, 0 - 50);
 		glEnd();
@@ -184,8 +163,8 @@ void drawAsteroid()
 	for (int j = 0; j < game->getWave(); j++)
 	{
 		glColor3f(255, 255, 255);
-		glBegin(GL_LINE_LOOP);
-		//std::cout << j <<" "<< game->getAsteroidX(j) << " " << game->getAsteroidY(j) << std::endl;
+	/*	glBegin(GL_LINE_LOOP);
+
 		for (int i = 0; i < 100; i++)
 		{
 			double theta = 2.0 * 3.1415926 * (i * 1.0) / 100.0;
@@ -193,7 +172,24 @@ void drawAsteroid()
 			double y = game->getAsteroidRadius(j) * sin(theta);
 			glVertex2f(x + game->getAsteroidX(j), y + game->getAsteroidY(j));
 		}
-		glEnd();
+		glEnd();*/
+
+
+		
+			std::deque<coord> corners = game->get_asteroid_corners(j);
+			glPushMatrix();
+			glTranslatef(game->getAsteroidX(j), game->getAsteroidY(j), 0.0);
+			glRotatef(game->getAsteroidRotation(j) + 90, 0, 0, 1);
+			glBegin(GL_LINE_LOOP);
+			
+			for (int i = 0; i < corners.size(); i++)
+			{
+				//std::cout << corners[i].x << " " << corners[i].y << std::endl;
+				glVertex2d(corners[i].x - game->getAsteroidX(j) , corners[i].y - game->getAsteroidY(j));
+			}
+			glEnd();
+			glPopMatrix();
+			
 	}
 	
 

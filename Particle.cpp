@@ -22,7 +22,6 @@ Particle::Particle(double rotation, double x, double y)
 
 Particle::~Particle()
 {
-	std::cout << "DESTROYED" << std::endl;
 	delete pos;
 }
 
@@ -38,11 +37,23 @@ void Particle::reduceDuration()
 	{
 		
 		duration_timer -= (double)(0.5 * CLOCKS_PER_SEC);
+
+
 		particleTransparency -= decayRate;
+		if (particleTransparency <= 0)
+		{
+			particleTransparency = 0.1;
+		}
+
 		size -= 4.0;
+
+		if (size <= 0)
+		{
+			size = 0.1;
+		}
 	}
 	
-	if (particleTransparency <= 0)
+	if (particleTransparency <= 0.1)
 	{
 		
 		is_alive = false;
@@ -76,8 +87,6 @@ bool Particle::getStatus()
 {
 	return this->is_alive;
 }
-
-
 
 
 // Set rotation

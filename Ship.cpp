@@ -14,7 +14,7 @@ Ship::Ship()
 	this->dir->y = 550.00;
 	this->velocity = VELOCITY;
 	this->elapsed_time = 0.0;
-	this->rotation = 0.0;
+	this->rotation = 315.0;
 	this->hitradius = 140.0 / 2.0;
 }
 
@@ -47,14 +47,14 @@ void Ship::moveUp(double time)
 	determinePosition(time);
 }
 
-void Ship::moveLeft()
+void Ship::moveLeft(double time)
 {
-	determineDirection(10);
+	determineDirection(1000, time);
 }
 
-void Ship::moveRight()
+void Ship::moveRight(double time)
 {
-	determineDirection(-10);
+	determineDirection(-1000, time);
 }
 
 
@@ -79,10 +79,10 @@ double Ship::getrotation()
 	return this->rotation;
 }
 
-void Ship::determineDirection(double newAngle)
+void Ship::determineDirection(double newAngle, double dt)
 {
 	
-	double new_angle = this->rotation + newAngle;
+	double new_angle = this->rotation + newAngle* dt ;
 	double angle_between = newAngle;
 
 	if (361 <= new_angle)

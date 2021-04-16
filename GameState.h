@@ -12,7 +12,7 @@
 #define MIN_Y  1
 #define MAX_X  2
 #define MAX_Y  3
-#define WAVE_INTERVAL 3
+#define WAVE_INTERVAL 10
 #define MAX_ASTEROIDS 50
 #define MAX_PARTICLES 10
 class GameState {
@@ -53,6 +53,10 @@ public:
 	double getArenaCoords(int i);
 	double getAsteroidRadius(int x);
 	double getParticleSize(int i);
+	double getAsteroidRotation(int i);
+	std::deque<coord> get_asteroid_corners(int i);
+
+	
 
 	int getWave();
 
@@ -80,8 +84,7 @@ private:
 
 	std::deque<Particle*> particles;
 
-	Asteroid* asteroid;
-	Asteroid* asteroids[MAX_ASTEROIDS] ;
+	std::deque<Asteroid*> asteroids ;
 };
 
 

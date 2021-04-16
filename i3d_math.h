@@ -3,7 +3,19 @@
 
 struct coord
 {
+	coord(double x_coord, double y_coord)
+	{
+		x = x_coord;
+		y = y_coord;
+	}
+
+	coord()
+	{
+		x = 0;
+		y = 0;
+	}
 	double x, y;
+	
 };
 
 

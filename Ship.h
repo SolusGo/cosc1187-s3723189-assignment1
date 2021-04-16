@@ -14,13 +14,13 @@ public:
 	double getx();
 	double gety();
 	
-	void moveLeft();
-	void moveRight();
+	void moveLeft(double time);
+	void moveRight(double time);
 	void moveUp(double time);
 	void setPosition(int x, int y);
 	void setTime(float number);
 	double getrotation();
-	void determineDirection(double newAngle);
+	void determineDirection(double newAngle, double time);
 	double getradius();
 private:
 

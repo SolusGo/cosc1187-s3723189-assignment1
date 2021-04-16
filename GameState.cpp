@@ -44,7 +44,6 @@ GameState::GameState()
 	this->currentWave = 1;
 
 	this->dt = 0.0;
-	asteroid = new Asteroid();
 	initiateAsteroids();
 }
 
@@ -104,11 +103,11 @@ void GameState::keyboard(unsigned char key, int x, int y)
 	case 27:
 
 	case 'a':
-		ship->moveLeft();
+		ship->moveLeft(dt);
 		this->addParticle();
 		break;
 	case 'd':
-		ship->moveRight();
+		ship->moveRight(dt);
 		this->addParticle();
 		break;
 	case 'w':
@@ -118,7 +117,6 @@ void GameState::keyboard(unsigned char key, int x, int y)
 			this->addParticle();
 		}
 
-		asteroid->move(this->dt);
 		break;
 	case 'q':
 		exit(EXIT_SUCCESS);
@@ -179,11 +177,16 @@ void GameState::initiateAsteroids()
 {
 	//asteroid->generateFeatures(min_coords->x, min_coords->y, max_coords->x, max_coords->y);
 
-	for (int i = 0; i < MAX_ASTEROIDS; i++)
+
+
+	for (int i = 0; i < currentWave; i++)
 	{
-		asteroids[i] = new Asteroid();
-		asteroids[i]->generateFeatures(min_coords->x, min_coords->y, max_coords->x, max_coords->y);
+		std::cout << "YEAH \n";
+		asteroids.push_back(new Asteroid());
+		asteroids.back()->generateFeatures(min_coords->x, min_coords->y, max_coords->x, max_coords->y);
 	}
+
+
 }
 
 
@@ -195,12 +198,16 @@ double GameState::getAsteroidRadius(int x)
 
 void GameState::moveAsteroids()
 {
-	//this->asteroid->move(this->elapsed_time);
-	for (int i = 0; i < this->currentWave; i++)
+	std::deque<Asteroid*>::iterator it = asteroids.begin();
+
+	while (it != asteroids.end())
 	{
-		this->asteroids[i]->move(this->dt);
+		(*it)->move(this->dt);
+		it++;
 	}
 }
+
+
 
 double GameState::getAsteroidX(int x)
 {
@@ -282,15 +289,15 @@ int GameState::nearWall()
 
 void GameState::startWave()
 {
-	if (currentWave < MAX_ASTEROIDS)
-	{
-		this->currentWave++;
-	}
+	this->currentWave++;
 	
-	for (int i = 0; i < currentWave; i++)
+	/*for (int i = 0; i < currentWave; i++)
 	{
 		this->asteroids[i]->resetPos();
 	}
+	*/
+	asteroids.clear();
+	initiateAsteroids();
 }
 
 int GameState::getWave()
@@ -301,27 +308,16 @@ int GameState::getWave()
 void GameState::checkGameStatus()
 {
 
-	std::deque<Particle*>::iterator it = particles.begin();
-	for (it = particles.begin(); it != particles.end(); it++)
-	{
-		(*it)->move(this->dt);
-	}
-
 	manageParticles();
 
 	this_time = clock();
 
 	timer += (double)(this_time - last_time);
 	
-	particle_timer += (double)(this_time - last_time);
 
 	last_time = this_time; 
 
-	if (particle_timer > (double)(0.5 * CLOCKS_PER_SEC))
-	{
-		particle_timer -= (double)(1 * CLOCKS_PER_SEC);
-		
-	}
+
 
 	if (timer > (double)(WAVE_INTERVAL * CLOCKS_PER_SEC))
 	{
@@ -329,6 +325,12 @@ void GameState::checkGameStatus()
 		startWave();
 		
 		
+	}
+
+	std::deque<Particle*>::iterator it = particles.begin();
+	for (it = particles.begin(); it != particles.end(); it++)
+	{
+		(*it)->move(this->dt);
 	}
 
 	
@@ -344,7 +346,6 @@ void GameState::manageParticles()
 	{
 		if ((*it)->getStatus() == false)
 		{
-			std::cout << "erased \n";
 			it = particles.erase(it);
 		} else
 		it++;
@@ -364,6 +365,8 @@ void GameState::addParticle()
 {
 	particles.push_back(new Particle(this->getShipRot(), ship->getx(), ship->gety()));
 }
+
+
 
 
 
@@ -401,4 +404,14 @@ double GameState::getParticleRotation(int x)
 double GameState::getParticleSize(int i)
 {
 	return particles[i]->getSize();
+}
+
+std::deque<coord> GameState::get_asteroid_corners(int i)
+{
+	return asteroids[i]->get_corners();
+}
+
+double GameState::getAsteroidRotation(int i)
+{
+	return asteroids[i]->get_rotation();
 }
