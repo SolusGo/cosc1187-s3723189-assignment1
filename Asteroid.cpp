@@ -17,8 +17,8 @@ Asteroid::Asteroid()
 	hitpoints = (int)random;
 	this->pos = new coord();
 	this->direction_angle = 0.0;
-	this->velocity =(double)( rand() % 100) + 200.0;
-	rotation_speed = (double)(rand() % 200) - 100.0;
+	this->velocity =(double)( rand() % RANGE) + MINIMUM;
+	rotation_speed = (double)(rand() % ROTATION_RANGE) + ROTATION_MIN;
 	rotation = (double)(rand() % 360);
 	
 }
@@ -46,31 +46,17 @@ double Asteroid::get_direction()
 
 void Asteroid::generateFeatures(double min_x, double min_y, double max_x, double max_y)
 {
-	int tempX, tempY, randomSign;
+	double tempX, tempY, theta;
 	int xrange = (int) (max_x -  min_x);
 	int yrange = (int) (max_y - min_y);
-	randomSign = rand() % 2;
 
-	if (randomSign == 0)
-	{
-		tempX = rand() % 400 + (int)max_x;
-	}
-	else
-	{
-		tempX = -(rand() % 400) + (int)min_x;
-	}
 	
-	randomSign = rand() % 2;
-
-	if (randomSign == 0)
-	{
-		tempY = rand() % 400 + (int)max_y;
-	}
-	else
-	{
-		tempY = -(rand() % 400) + (int)min_y;
-	}
-
+	theta = ((double)rand() / (double)RAND_MAX) * 2.0 * M_PI;
+	
+	tempX =   (max_x * 0.5) + cos(theta) * ((max_x / 2.0) + 100.00);
+	
+	tempY = (max_y * 0.5) + sin(theta) * ((max_x / 2.0) + 100.00);
+	
 	this->pos->x = tempX * 1.0;
 	this->pos->y = tempY * 1.0;
 
@@ -79,6 +65,9 @@ void Asteroid::generateFeatures(double min_x, double min_y, double max_x, double
 	this->originPos.x = tempX * 1.0;
 	this->originPos.y = tempY * 1.0;
 
+	//Generate a random coordinate within the arena
+	//Calculate angle based of position of asteroid and this coordinate inside arena
+	
 	
 	tempX = rand() % xrange + min_x;
 	tempY = rand() % yrange + min_y;
@@ -110,7 +99,6 @@ void Asteroid::move(double time)
 	double Eh = this->pos->y;
 	
 	double angle = (this->direction_angle) * 3.14 / 180.0;
-	//printf("x: %f, y: %f, angle; %f  \n", What, Eh, angle * 180/3.14);
 	if (time > 0.0)
 	{
 
@@ -125,21 +113,23 @@ void Asteroid::move(double time)
 			corners[i].x = corners[i].x + (cos(angle) * this->velocity * time);
 			corners[i].y = corners[i].y + (sin(angle) * this->velocity * time);
 		}
+
+		rotation = rotation - rotation_speed * time;
+
+		if (rotation >= 361.0)
+		{
+			rotation = 0.0;
+		}
+
+		if (rotation < 0.0)
+		{
+			rotation = 360.0;
+		}
+
 	}
 
-	rotation = rotation + rotation_speed * time;
-
-	if (rotation >= 360)
-	{
-		rotation = 0;
-	}
 	
-	if (rotation <= 0)
-	{
-		rotation = 360;
-	}
 	
-	//std::cout << this->pos->y << " " << this->pos->x << std::endl;
 }
 
 void Asteroid::initiateCorners()
@@ -149,25 +139,6 @@ void Asteroid::initiateCorners()
 	double r = 0.0;
 	double x, y;
 	
-	/*for (int i = 0; i < 20; i++)
-	{
-		angle += 0.3 + ((double)rand() / RAND_MAX) * 0.3;
-		if (angle > 2 * M_PI)
-		{
-			break;
-		}
-		
-		r = (5.0 + ((double)rand() / RAND_MAX) * 20.0 + ((double)rand() / RAND_MAX) * 50.0);
-
-		double x = corners.back().x + r * cos(angle);
-		double y = corners.back().y + r * sin(angle);
-		
-		corners.push_back(coord(x, y));
-
-		printf("(%f, %f), ", corners.back().x, corners.back().y);
-		
-	}*/
-
 	for (r; r < 2.0 * M_PI;)
 	{
 		x = originPos.x + (radius*cos(r));
@@ -178,7 +149,6 @@ void Asteroid::initiateCorners()
 	}
 
 
-	printf("%d \n", corners.size());
 	
 }
 

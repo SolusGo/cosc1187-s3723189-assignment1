@@ -2,9 +2,10 @@
 #ifndef SHIP_H
 #define SHIP_H
 #include "i3d_math.h"
-
+#define VELOCITY 2000.0
+#define TURNING_VELOCITY 1000.0
 class Ship {
-	// Constructor/Desctructor
+
 
 public:
 
@@ -19,6 +20,7 @@ public:
 	void moveUp(double time);
 	void setPosition(int x, int y);
 	void setTime(float number);
+	void setRotation(double number);
 	double getrotation();
 	void determineDirection(double newAngle, double time);
 	double getradius();
@@ -31,7 +33,6 @@ private:
 	double velocity;
 	double hitradius; 
 	double elapsed_time;
-	/*double determinePosition(double old, double dir);*/
 	void determinePosition(double time);
 };
 

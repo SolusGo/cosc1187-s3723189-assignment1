@@ -10,14 +10,10 @@ Bullet::Bullet(double x, double y, double angle)
 }
 
 
-
-
 Bullet::~Bullet()
 {
 	delete pos;
 }
-
-
 
 void Bullet::move(double dt)
 {
@@ -27,7 +23,6 @@ void Bullet::move(double dt)
 	this->pos->y = newYpos;
 	this->pos->x = newxpos;
 }
-
 
 
 void Bullet::setStatus(bool status)

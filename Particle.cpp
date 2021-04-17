@@ -25,18 +25,19 @@ Particle::~Particle()
 	delete pos;
 }
 
+//Reduce the duration and alpha/transparency  depending on the "DECAY" value
 void Particle::reduceDuration()
 {
 	this_time = clock();
 
-	duration_timer += (double)(this_time - last_time);
+	duration_timer += (double)((double)this_time - (double)last_time);
 
 	last_time = this_time;
 
-	if (duration_timer > (double)(0.5 * CLOCKS_PER_SEC))
+	if (duration_timer > (double)(decayRate * CLOCKS_PER_SEC))
 	{
 		
-		duration_timer -= (double)(0.5 * CLOCKS_PER_SEC);
+		duration_timer -= (double)(decayRate * CLOCKS_PER_SEC);
 
 
 		particleTransparency -= decayRate;
@@ -53,6 +54,7 @@ void Particle::reduceDuration()
 		}
 	}
 	
+	//Particle is fully transparent, it is considered "dead"
 	if (particleTransparency <= 0.1)
 	{
 		
@@ -70,7 +72,6 @@ void Particle::setPosition(double x, double y)
 void Particle::move(double time)
 {
 	double angle = (this->rotation) * 3.14 / 180.0;
-	//printf("x: %f, y: %f, angle; %f  \n", What, Eh, angle * 180/3.14);
 	if (time > 0.0)
 	{
 

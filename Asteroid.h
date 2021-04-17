@@ -3,6 +3,12 @@
 #define ASTEROID
 #include "i3d_math.h"
 #include <deque>
+
+#define RANGE 300
+#define MINIMUM 200
+#define ROTATION_RANGE 200
+#define ROTATION_MIN -100.0
+//TO CALCULATE POTENTIAL MAX = RANGE + MINIMUM 
 class Asteroid {
 public:
 	Asteroid();

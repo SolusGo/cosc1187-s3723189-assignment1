@@ -19,6 +19,30 @@
 #   include <GL/glut.h>
 #endif
 
+#define OUTLINE_R 255
+#define OUTLINE_G 255
+#define OUTLINE_B 255
+
+#define FILL_R 0
+#define FILL_G 0
+#define FILL_B 0
+
+#define WARNING_R 255
+#define WARNING_G 0
+#define WARNING_B 0
+
+#define ASTEROID_R 255
+#define ASTEROID_G 255
+#define ASTEROID_B 255
+
+#define BULLET_SIZE 5.0
+#define BULLET_R 255
+#define BULLET_G 255
+#define BULLET_B 255
+
+#define ARENA_R 255
+#define ARENA_G 255
+#define ARENA_B 255
 
 double g_screen_width = 0.0;
 double g_screen_height = 0.0;
@@ -27,22 +51,6 @@ double current_time = 0.0;
 Ship* ship = new Ship();
 GameState *game;
 
-
-void display(void)
-{
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
-
-	/* Put drawing code here */
-	// ...
-
-	/* Always check for errors! */
-	int err;
-	while ((err = glGetError()) != GL_NO_ERROR)
-		printf("display: %s\n", gluErrorString(err));
-
-	glutSwapBuffers();
-}
 
 
 
@@ -77,14 +85,40 @@ void draw_ship()
 	//Calculates the y coordinate for the bottom  middle segment of the shit 
 	double middlebottom = (20.0 / 115.0) * height;
 	glPushMatrix();
-	glColor3f(255, 255, 255);
+	glColor3f(FILL_R, FILL_G, FILL_B);
 
-	//glTranslatef(ship->getx(), ship->gety(), 0.0);
 	glTranslatef(game->getShipX(), game->getShipY(), 0.0);
 	glRotatef(game->getShipRot(), 0, 0, 1);
-	//glScalef(20, 20, 0.0);
+	glBegin(GL_TRIANGLES);
+
+	
+	//Bottom left point of ship
+	glVertex2f(0.0 - width / 2, 0.0 - height / 2);
+
+	//Bottom middle point
+
+	glVertex2f(0.0, 0.0 - middlebottom);
+
+	//Top point 
+
+	glVertex2f(0.0, 0.0 + height / 1.50);
+
+	glEnd();
+
+	// Draw next triangle 
+	glBegin(GL_TRIANGLES);
+
+	glVertex2f(0.0, 0.0 - middlebottom);
+
+	glVertex2f(0.0 + width / 2, 0.0 - height / 2);
+
+	glVertex2f(0.0, 0.0 + height / 1.50);
+
+	glEnd();
+	glColor3f(OUTLINE_R, OUTLINE_G, OUTLINE_B);
+
 	glBegin(GL_LINE_LOOP);
-	//printf("width: %d, length: %d, x: %d, y: %d \n", width, height, ship->getx(), ship->gety());
+	
 	//Bottom left point of ship
 	glVertex2f(0.0 - width / 2, 0.0 - height / 2);
 
@@ -107,14 +141,12 @@ void draw_ship()
 
 	glVertex2f(0.0, 0.0 + height / 1.50);
 	//Top point 
-	//printf("y: %d, y + height: %d \n", ship->gety(), ship->getx() + height);
 	
 	glEnd();
 	glPopMatrix();
 
 	
-	//glPointSize(10);
-
+	//Draw particles 
 	
 	for (int i = 0; i < game->getParticles(); i++)
 	{
@@ -126,7 +158,6 @@ void draw_ship()
 		glRotatef(game->getParticleRotation(i) + 90, 0, 0, 1);
 		glColor4f(255, 255, 255, game->getAlpha(i));
 		glPointSize(game->getParticleSize(i));
-		//printf("%f \n", game->getParticleSize(i));
 		glBegin(GL_POINTS);
 		glVertex2f(0, 0 - 50);
 		glEnd();
@@ -181,9 +212,10 @@ void drawText()
 
 }
 
+//Draw all bullets
 void drawBullets()
 {
-	glColor3f(255, 255, 255);
+	glColor3f(BULLET_R, BULLET_G, BULLET_B);
 	
 	glPointSize(5.0);
 
@@ -199,42 +231,15 @@ void drawBullets()
 	}
 }
 
-void drawShipHitbox()
-{
-	glColor3f(255, 255, 255);
-	glBegin(GL_LINE_LOOP);
-	for (int i = 0; i < 100; i++)
-	{
-		double theta = 2.0 * 3.1415926 * (i*1.0) / 100.0;
-		double x = game->getShipHitBox() * cos(theta);
-		double y = game->getShipHitBox() * sin(theta);
-		glVertex2f(x + game->getShipX(), y + game->getShipY());
-	}
-	glEnd();
-}
 
 
-
+//Draw all asteroids
 void drawAsteroid()
 {
-	
-
 	for (int j = 0; j < game->getNumAsteroids(); j++)
 	{
-		glColor3f(255, 255, 255);
-	/*	glBegin(GL_LINE_LOOP);
-
-		for (int i = 0; i < 100; i++)
-		{
-			double theta = 2.0 * 3.1415926 * (i * 1.0) / 100.0;
-			double x = game->getAsteroidRadius(j) * cos(theta);
-			double y = game->getAsteroidRadius(j) * sin(theta);
-			glVertex2f(x + game->getAsteroidX(j), y + game->getAsteroidY(j));
-		}
-		glEnd();*/
-
-
-		
+		glColor3f(ASTEROID_R, ASTEROID_G, ASTEROID_B);
+	
 			std::deque<coord> corners = game->get_asteroid_corners(j);
 			glPushMatrix();
 			glTranslatef(game->getAsteroidX(j), game->getAsteroidY(j), 0.0);
@@ -243,7 +248,6 @@ void drawAsteroid()
 			
 			for (int i = 0; i < corners.size(); i++)
 			{
-				//std::cout << corners[i].x << " " << corners[i].y << std::endl;
 				glVertex2d(corners[i].x - game->getAsteroidX(j) , corners[i].y - game->getAsteroidY(j));
 			}
 			glEnd();
@@ -251,31 +255,21 @@ void drawAsteroid()
 			
 	}
 	
-
-
 }
 
 
 void drawArena()
 {
-	/*if (game->nearWall())
+	
+	
+
+	if (game->nearWall(0))
 	{
-		glColor3f(255, 0, 0);
+		glColor3f(WARNING_R, WARNING_G, WARNING_B);
 	}
 	else
 	{
-		glColor3f(255, 255, 255);
-	}*/
-
-	int number = game->nearWall();
-
-	if (number == 3)
-	{
-		glColor3f(255, 0, 0);
-	}
-	else
-	{
-		glColor3f(255, 255, 255);
+		glColor3f(ARENA_R, ARENA_G, ARENA_B);
 	}
 
 	glBegin(GL_LINES);
@@ -283,39 +277,39 @@ void drawArena()
 	glVertex2f(game->getArenaCoords(MAX_X), game->getArenaCoords(MIN_Y));
 	glEnd();
 
-	if (number == 0)
+	if (game->nearWall(1))
 	{
-		glColor3f(255, 0, 0);
+		glColor3f(WARNING_R, WARNING_G, WARNING_B);
 	}
 	else
 	{
-		glColor3f(255, 255, 255);
+		glColor3f(ARENA_R, ARENA_G, ARENA_B);
 	}
 	glBegin(GL_LINES);
 	glVertex2f(game->getArenaCoords(MAX_X), game->getArenaCoords(MIN_Y));
 	glVertex2f(game->getArenaCoords(MAX_X), game->getArenaCoords(MAX_Y));
 	glEnd();
 
-	if (number == 2)
+	if (game->nearWall(2))
 	{
-		glColor3f(255, 0, 0);
+		glColor3f(WARNING_R, WARNING_G, WARNING_B);
 	}
 	else
 	{
-		glColor3f(255, 255, 255);
+		glColor3f(ARENA_R, ARENA_G, ARENA_B);
 	}
 	glBegin(GL_LINES);
 	glVertex2f(game->getArenaCoords(MAX_X), game->getArenaCoords(MAX_Y));
 	glVertex2f(game->getArenaCoords(MIN_X), game->getArenaCoords(MAX_Y));
 	glEnd();
 
-	if (number == 1)
+	if (game->nearWall(3))
 	{
-		glColor3f(255, 0, 0);
+		glColor3f(WARNING_R, WARNING_G, WARNING_B);
 	}
 	else
 	{
-		glColor3f(255, 255, 255);
+		glColor3f(ARENA_R, ARENA_G, ARENA_B);
 	}
 
 	glBegin(GL_LINES);
@@ -330,18 +324,8 @@ void on_idle()
 {
 	current_time = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
 	double dt = current_time - prev_time;
-	//ship->setTime(dt);
 	game->setTime(dt);
-	
-	game->setElapsedtime(current_time);
-	/*if (game->hasCollided())
-	{
-		game->resetShip();
-		
-	}*/
-
 	game->updateGameStatus();
-
 	prev_time = current_time;
 	glutPostRedisplay();
 }
@@ -354,7 +338,7 @@ void on_display()
 	glLoadIdentity();
 
 	//render_frame();
-	drawShipHitbox();
+	
 	if (game->is_alive())
 	{
 		draw_ship();

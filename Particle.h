@@ -2,7 +2,7 @@
 #define PARTICLE
 #include "i3d_math.h"
 #include <time.h>
-#define DECAY 3.0;
+#define DECAY 2.0; // USED TO ADJUST DECAY RATE OF PARTICLES AND TRANSPARENCY RATE
 #define PARTICLE_VELOCITY 100.0;
 #define INITIAL_PARTICLE_SIZE 10.0
 class Particle {

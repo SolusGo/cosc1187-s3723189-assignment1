@@ -1,7 +1,7 @@
 #include "Ship.h"
 #include <math.h>
 #include <iostream>
-#define VELOCITY 2000.0
+
 
 Ship::Ship() 
 {
@@ -49,12 +49,12 @@ void Ship::moveUp(double time)
 
 void Ship::moveLeft(double time)
 {
-	determineDirection(1000, time);
+	determineDirection(TURNING_VELOCITY, time);
 }
 
 void Ship::moveRight(double time)
 {
-	determineDirection(-1000, time);
+	determineDirection(-TURNING_VELOCITY, time);
 }
 
 
@@ -96,17 +96,6 @@ void Ship::determineDirection(double newAngle, double dt)
 
 	this->rotation = new_angle;
 
-
-
-	/*double x = this->dir->x - this->pos->x;
-	double y = this->dir->y- this->pos->y;
-
-	double angle = 45 * 3.14 / 180.0;
-
-	this->dir->x = 10 * cos(0) + this->dir->x;
-	this->dir->y = 10* sin(0) + this->dir->y;
-	*/
-	 
 } 
 
 double Ship::getradius()
@@ -114,6 +103,10 @@ double Ship::getradius()
 	return this->hitradius;
 }
 
+void Ship::setRotation(double x)
+{
+	this->rotation = x;
+}
 
 // Calculate movement NewPos = Oldps + (Dir * Vel * dt) where Dir = 1 or -1
 
