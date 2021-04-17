@@ -59,6 +59,11 @@ void key_presswrapper(unsigned char key, int x, int y)
 	game->keyboard(key, x, y);
 }
 
+void mouse_presswrapper(int button, int state, int x, int y)
+{
+	game->mouse(button, state, x, y);
+}
+
 void on_reshape(int w, int h)
 {
 	fprintf(stderr, "on_reshape(%d, %d)\n", w, h);
@@ -183,10 +188,22 @@ void drawText()
 	glPopMatrix();
 
 	glPushMatrix();
+	glTranslatef(g_screen_width * 0.20 * 2.75, g_screen_height * 0.2 * 4.55, 0.0);
+
+
+	std::string ctm = std::to_string(game->get_minute());
+	for (auto c = ctm.begin(); c != ctm.end(); ++c)
+	{
+		glutStrokeCharacter(GLUT_STROKE_ROMAN, *c);
+	}
+	glPopMatrix();
+
+
+	glPushMatrix();
 	glTranslatef(g_screen_width * 0.20 * 3.75, g_screen_height * 0.2 * 4.55, 0.0);
 
 	
-	std::string ct = std::to_string(game->get_time());
+	std::string ct = std::to_string(game->get_second());
 	for (auto c = ct.begin(); c != ct.end(); ++c)
 	{
 		glutStrokeCharacter(GLUT_STROKE_ROMAN, *c);
@@ -384,6 +401,7 @@ int main(int argc, char** argv)
 	glutDisplayFunc(on_display);
 	glutIdleFunc(on_idle);
 	glutKeyboardFunc(key_presswrapper);
+	glutMouseFunc(mouse_presswrapper);
 	game->setTime(glutGet(GLUT_ELAPSED_TIME));
 	prev_time = glutGet(GLUT_ELAPSED_TIME);
 	glutMainLoop();

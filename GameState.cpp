@@ -25,12 +25,13 @@ GameState::GameState()
 
 	this_time = clock();
 	last_time = this_time;
-
+	mouse_pressed = false;
 	fire_bullet = false;
 	make_particle = false;
 	//  timers
 	timer = 0.0;
-	game_time = 0.0;
+	game_time_seconds = 0;
+	game_time_minutes = 0;
 	wave_timer = 0.0;
 	bullet_timer = 0.0;
 	particle_timer = 0.0;
@@ -113,23 +114,18 @@ bool GameState::hasCollided(double x, double y)
 	return false;
 }
 
-
+void GameState::mouse(int button, int state, int x, int y)
+{
+	if(button == GLUT_LEFT_BUTTON)
+	{
+		mouse_pressed = (state == GLUT_DOWN);
+	}
+}
 
 void GameState::keyboard(unsigned char key, int x, int y)
 {
 	switch (key)
 	{
-
-	case SPACEBAR:
-		if (fire_bullet == false)
-		{
-			fire_bullet = true;
-		}
-		if (!is_alive())
-		{
-			reset_Game();
-		}
-		break;
 
 	case LEFT:
 	case LEFT_2:
@@ -227,8 +223,9 @@ void GameState::reset_Game()
 {
 	score = 0;
 	currentWave = 0;
-	game_time = 0.0;
+	game_time_seconds = 0;
 	wave_timer = 0.0;
+	game_time_minutes = 0;
 	startWave();
 	resetShip();
 }
@@ -351,6 +348,18 @@ void GameState::updateGameStatus()
 	manageParticles();
 	updateBulletStatus();
 
+	if (mouse_pressed)
+	{
+		if (fire_bullet == false)
+		{
+			fire_bullet = true;
+		}
+		if (!is_alive())
+		{
+			reset_Game();
+		}
+	}
+
 	if (hasCollided())
 	{
 		ship_destroyed = true;
@@ -403,8 +412,13 @@ void GameState::updateGameStatus()
 	{
 		timer -= (double)(1 * CLOCKS_PER_SEC);
 
-		game_time += 1.0;
+		game_time_seconds += 1;
 		wave_timer += 1.0;
+		if (game_time_seconds == 60)
+		{
+			game_time_minutes += 1;
+			game_time_seconds = 0;
+		}
 		
 	}
 
@@ -471,7 +485,7 @@ void GameState::updateBulletStatus()
 		
 		collided = hit_wall || inRadius;
 		
-		std::cout << collided << std::endl;
+	
 	
 		if (collided == false)
 		{
@@ -587,10 +601,16 @@ int GameState::getScore()
 	return score;
 }
 
-double GameState::get_time()
+int GameState::get_second()
 {
-	return game_time;
+	return game_time_seconds;
 }
+
+int GameState::get_minute()
+{
+	return game_time_minutes;
+}
+
 
 bool GameState::is_alive()
 {

@@ -31,12 +31,14 @@
 #define EXIT_GAME 'q'
 #define EXIT_GAME_2 'Q'
 
+
+
 #define MIN_WALL_WIDTH 0.10 //Minimum height and Width of Arena Calculated ie. as MIN_WALL_WIDTH * VIEWPORT_WIDTH
 #define MIN_WALL_HEIGHT 0.10 
 #define MAX_WALL_WIDTH 9.0 //Max height and Width of Arena Calculated ie. as MAX_WALL_WIDTH * MIN_WALL_WIDTH * VIEWPORT_WIDTH
 #define MAX_WALL_HEIGHT 9.0
 #define WARNING_DISTANCE 150.0 //Distance from wall
-#define FIRING_RATE 0.001 //BULLETS PER SECOND
+#define FIRING_RATE 0.25 //BULLETS PER SECOND
 #define PARTICLE_DELAY 0.0 // 0.0 = Particle every movement else calculation is PARTICLE_DELAY / 1 second
 class GameState {
 
@@ -86,7 +88,8 @@ public:
 	int getBulletsSize();
 
 	//Game State
-	double get_time();
+	int get_second();
+	int get_minute();
 	bool is_alive();
 	int getScore();
 	void setArena(double x, double y);
@@ -99,7 +102,7 @@ public:
 	void startWave();
 	void addParticle();
 	void manageParticles();
-
+	void mouse(int button, int state, int x, int y);
 
 private:
 
@@ -115,7 +118,8 @@ private:
 	double timer;
 	double wave_timer;
 	double bullet_timer;
-	double game_time;
+	int game_time_seconds;
+	int game_time_minutes;
 	double particle_timer;
 
 	int currentWave;
@@ -125,7 +129,7 @@ private:
 	bool ship_destroyed;
 	bool fire_bullet;
 	bool make_particle;
-	
+	bool mouse_pressed;
 	void initiateAsteroids();
 
 	std::deque<Particle*> particles;

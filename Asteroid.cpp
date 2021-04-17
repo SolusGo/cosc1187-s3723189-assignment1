@@ -12,7 +12,7 @@ Asteroid::Asteroid()
 	
 	originPos.x = 1.0;
 	originPos.y = 1.0;
-	int random = rand() % 50 + 50;
+	int random = rand() % RADIUS_RANGE + RADIUS_MIN;
 	radius = random * 1.0;
 	hitpoints = (int)random;
 	this->pos = new coord();

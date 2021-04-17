@@ -8,6 +8,8 @@
 #define MINIMUM 200
 #define ROTATION_RANGE 200
 #define ROTATION_MIN -100.0
+#define RADIUS_RANGE 50
+#define RADIUS_MIN 50
 //TO CALCULATE POTENTIAL MAX = RANGE + MINIMUM 
 class Asteroid {
 public:
